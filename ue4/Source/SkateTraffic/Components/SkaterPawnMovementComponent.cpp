@@ -58,7 +58,7 @@ void USkaterPawnMovementComponent::SwitchLaneStart(int8 Direction)
 {
 	if (PawnOwner->IsPushingForward())
 	{
-		return;
+		PawnOwner->PushForwardEnd();
 	}
 	Super::SwitchLaneStart(Direction);
 }
@@ -82,14 +82,12 @@ void USkaterPawnMovementComponent::SlowDownUpdate(float DeltaTime)
 
 	if (PawnOwner->IsSlowingDown())
 	{
-		/*if (Velocity.IsNearlyZero(10.f))
+		if (Velocity.IsNearlyZero(10.f))
 		{
 			SetIsStanding(true);
 			//UE_LOG(LogTemp, Error, TEXT("Stop"));
 		}
-		else if (FVector::DotProduct(PawnOwner->GetActorForwardVector(), Velocity) > 0.f)
-		{*/
 			AddVelocity(UpdatedComponent->GetForwardVector() * -SlowDownVelocity * DeltaTime);
-		//}
+		
 	}
 }

@@ -64,6 +64,8 @@ void ASkaterPawn::PushForwardStart()
 void ASkaterPawn::PushForwardEnd()
 {
 	bIsPushingForward = false;
+	UAnimInstance* AnimInstance = CharacterMeshComponent->GetAnimInstance();
+	AnimInstance->Montage_Stop(0.2f, PushForwardAnimMontage);
 	GetSkaterPawnMovementComponent()->PushForwardEnd();
 }
 

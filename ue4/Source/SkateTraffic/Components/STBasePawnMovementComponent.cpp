@@ -202,19 +202,23 @@ void USTBasePawnMovementComponent::SwitchLaneStart(int8 Direction)
 
 void USTBasePawnMovementComponent::SwitchLaneUpdate(float DeltaTime)
 {
+	if (!IsSwitchingLanes())
+	{
+		return;
+	}
 	if (FMath::IsNearlyEqual(PawnOwner->GetActorLocation().X, (CurrentSwitchLaneInitialLocation + CurrentSwitchLaneVector).X, 5.f))
 	{
 		UE_LOG(LogTemp, Error, TEXT("Delta"));
 		SwitchLaneEnd();
 	}
 
-	if (IsSwitchingLanes())
-	{
+	/*if (IsSwitchingLanes())
+	{*/
 		FVector Delta = CurrentSwitchLaneVector * DeltaTime * SwitchLaneSpeed / CurrentSwitchLaneVector.Size();
 		FRotator NewRotation = PawnOwner->GetActorRotation();
 		FHitResult Hit;
 		SafeMoveUpdatedComponent(Delta, NewRotation, true, Hit);
-	}
+	//}
 
 }
 
