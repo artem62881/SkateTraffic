@@ -15,6 +15,7 @@ void USkaterPawnMovementComponent::BeginPlay()
 		PushForwardVelocityTimeline.AddInterpFloat(PushForwardVelocityCurve, PushForwardVelocityUpdate);
 	}
 	PawnOwner = StaticCast<ASkaterPawn*>(GetOwner());
+	SetPawnInitialVelocity(InitialVelocity * GetPawnOwner()->GetActorForwardVector());
 }
 
 void USkaterPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
