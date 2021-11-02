@@ -9,7 +9,7 @@
 /**
  * 
  */
- class USkaterPawnMovementComponent;
+class USkaterPawnMovementComponent;
 class UAnimMontage;
 UCLASS()
 class SKATETRAFFIC_API ASkaterPawn : public ASTBasePawn

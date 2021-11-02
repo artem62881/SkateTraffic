@@ -45,7 +45,7 @@ void USTBasePawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTic
 		Velocity += CurrentPawnAcceleration * DeltaTime;
 	}
 
-	if (FVector::DotProduct(UpdatedComponent->GetForwardVector(), Velocity) < 0.f || IsStanding())
+	if (FVector::DotProduct(UpdatedComponent->GetForwardVector(), Velocity) <= 0.f || IsStanding())
 	{
 		SetIsStanding(true);
 		Velocity = FVector::ZeroVector;

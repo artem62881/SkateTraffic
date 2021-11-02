@@ -6,7 +6,7 @@
 #include "GameFramework/Pawn.h"
 #include "STBasePawn.generated.h"
 
-class USTBasePawnMovementComponent;
+
 UCLASS(Abstract, NotBlueprintable)
 class SKATETRAFFIC_API ASTBasePawn : public APawn
 {

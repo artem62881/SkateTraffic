@@ -27,7 +27,7 @@ void UCarPawnMovementComponent::IncreaseSpeed(float DeltaTime)
 
 void UCarPawnMovementComponent::DecreaseSpeed(float DeltaTime)
 {
-	if (!FVector::DotProduct(PawnOwner->GetActorForwardVector(), Velocity))
+	if (FVector::DotProduct(PawnOwner->GetActorForwardVector(), Velocity) > 0.f)
 	{
 		AddVelocity(-PawnOwner->GetActorForwardVector() * BaseBrakeAccel * DeltaTime);
 	}
