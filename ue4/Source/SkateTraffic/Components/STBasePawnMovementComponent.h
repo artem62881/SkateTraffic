@@ -58,13 +58,15 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float SwitchLaneSpeed = 600.0f;
-	
-	void SetPawnVelocity(FVector NewVelocity);
+
+	virtual void SetPawnInitialVelocity(FVector InVelocity);
 
 private:
+	void SetPawnVelocity(FVector NewVelocity);
+	
 	void UpdatePawnAcceleration(float DeltaTime, FVector FloorNormal);
 
-	void RotatePawnTowardsGradient(FVector FloorNormal);
+	void RotatePawnTowardsFloorGradient(FVector FloorNormal);
 
 	void UpdateCurrentVelocity(float DeltaTime);
 

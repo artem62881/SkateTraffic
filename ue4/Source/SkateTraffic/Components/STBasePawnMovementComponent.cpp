@@ -10,9 +10,7 @@ void USTBasePawnMovementComponent::BeginPlay()
 	Super::BeginPlay();
 	PawnOwner = StaticCast<ASTBasePawn*>(GetPawnOwner());
 	OnGroundHit.AddDynamic(this, &USTBasePawnMovementComponent::OnGroundHitEvent);
-	SetPawnVelocity(FVector::ZeroVector);
 	CachedPawnInitialLocation = UpdatedComponent->GetComponentLocation();
-	
 }
 
 void USTBasePawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -34,7 +32,7 @@ void USTBasePawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTic
 				bOnGroundHitCheck = false;
 				OnGroundHit.Broadcast(FloorHitNormal);
 			}
-			RotatePawnTowardsGradient(FloorHitNormal);
+			RotatePawnTowardsFloorGradient(FloorHitNormal);
 		}
 		else
 		{
@@ -44,10 +42,9 @@ void USTBasePawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTic
 		UpdatePawnAcceleration(DeltaTime, FloorHitNormal);
 		Velocity += CurrentPawnAcceleration * DeltaTime;
 	}
-
-	if (FVector::DotProduct(UpdatedComponent->GetForwardVector(), Velocity) <= 0.f || IsStanding())
+	
+	if (IsStanding())
 	{
-		SetIsStanding(true);
 		Velocity = FVector::ZeroVector;
 	}
 	
@@ -83,7 +80,6 @@ FVector USTBasePawnMovementComponent::GetCurrentVelocity() const
 
 bool USTBasePawnMovementComponent::IsFalling() const
 {
-	
 	return bIsFalling;
 }
 
@@ -104,7 +100,7 @@ void USTBasePawnMovementComponent::UpdateCurrentVelocity(float DeltaTime)
 
 void USTBasePawnMovementComponent::OnGroundHitEvent(FVector& HitNormal)
 {
-	if (!HitNormal.Z == 0.f)
+	if (HitNormal.Z != 0.f)
 	{
 		Velocity.Z = -Velocity.Size2D() * HitNormal.Size2D() / HitNormal.Z;
 	}
@@ -127,18 +123,18 @@ void USTBasePawnMovementComponent::UpdatePawnAcceleration(float DeltaTime, FVect
 	}
 	
 	CurrentPawnAcceleration = (GravityAcceleration + FloorReactionAcceleration) * SurfaceFriction;
-
+	
 	//FVector ActorLocation = UpdatedComponent->GetComponentLocation();
 	//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + GravityAcceleration, FColor::Green);
 	//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + FloorReactionAcceleration, FColor::Green);
 	//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + CurrentPawnAcceleration, FColor::Red);
 }
 
-void USTBasePawnMovementComponent::RotatePawnTowardsGradient(FVector FloorNormal)
+void USTBasePawnMovementComponent::RotatePawnTowardsFloorGradient(FVector FloorNormal)
 {
 	FRotator Rot = FloorNormal.ToOrientationRotator();
 	Rot.Pitch -= 90.f;
-	if (!FMath::IsNearlyZero(FloorNormal.Size2D(), 1e-2f))
+	if (!FMath::IsNearlyZero(FloorNormal.Size2D(), .01f))
 	{
 		Rot.Yaw = FloorNormal.Projection().ToOrientationRotator().Yaw;
 	}
@@ -146,7 +142,13 @@ void USTBasePawnMovementComponent::RotatePawnTowardsGradient(FVector FloorNormal
 	{
 		Rot.Yaw = UpdatedComponent->GetComponentRotation().Yaw;
 	}
+	GEngine->AddOnScreenDebugMessage(1, -1.f, FColor::Green, FString::Printf(TEXT("Normal: %f %f %f \n Owner: %s"), FloorNormal.X, FloorNormal.Y, FloorNormal.Z, *GetPawnOwner()->GetName()));
 	UpdatedComponent->SetWorldRotation(Rot);
+}
+
+void USTBasePawnMovementComponent::SetPawnInitialVelocity(FVector InVelocity)
+{
+	SetPawnVelocity(InVelocity);
 }
 
 void USTBasePawnMovementComponent::SetPawnVelocity(FVector NewVelocity)
@@ -155,16 +157,16 @@ void USTBasePawnMovementComponent::SetPawnVelocity(FVector NewVelocity)
 }
 
 bool USTBasePawnMovementComponent::CheckFloor(float DeltaTime, FVector& HitNormal)
-{
+{	
 	FHitResult Hit;
 	FVector StartLocation = UpdatedComponent->GetComponentLocation();
 	float LineTraceLength = FloorCheckTraceLength + GetGravityZ() * DeltaTime;
-	FVector EndLocation = StartLocation + LineTraceLength * FVector::DownVector;
+	FVector EndLocation = StartLocation + FloorCheckTraceLength * (-UpdatedComponent->GetUpVector());
 	FRotator Rotation = UpdatedComponent->GetComponentRotation();
 	FCollisionQueryParams CollisionParams;
 	CollisionParams.AddIgnoredActor(GetOwner());
 
-	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Visibility, CollisionParams))
+	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Pawn, CollisionParams))
 	{	
 		DrawDebugLine(GetWorld(), StartLocation, Hit.ImpactPoint, FColor::Green);
 		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 20.f, 16, FColor::Red);
@@ -176,7 +178,6 @@ bool USTBasePawnMovementComponent::CheckFloor(float DeltaTime, FVector& HitNorma
 	{
 		return false;
 	}
-	
 }
 
 void USTBasePawnMovementComponent::SwitchLaneStart(int8 Direction)
