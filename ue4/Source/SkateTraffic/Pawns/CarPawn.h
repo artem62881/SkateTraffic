@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "STBasePawn.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "SkateTraffic/Components/CarPawnMovementComponent.h"
 #include "CarPawn.generated.h"
 
 /**
@@ -17,12 +19,14 @@ class SKATETRAFFIC_API ACarPawn : public ASTBasePawn
 public:
 	ACarPawn();
 
+	UBehaviorTree* GetBehaviorTree() const;
+	UCarPawnMovementComponent* GetCarPawnMovementComponent() const;
+	
 	UFUNCTION(BlueprintCallable)
 	bool CheckCarsInFront();
 
 	UFUNCTION(BlueprintCallable)
 	bool CheckCarsOnNearbyLane(int32 Direction);
-
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UBoxComponent* BoxComponent;
@@ -32,6 +36,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCarPawnMovementComponent* CarPawnMovementComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	class UBehaviorTree* BehaviorTree;
 
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)

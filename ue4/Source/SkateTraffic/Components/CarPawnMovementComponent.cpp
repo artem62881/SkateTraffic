@@ -16,8 +16,11 @@ void UCarPawnMovementComponent::BeginPlay()
 void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+}
 
-	UpdateCurrentSpeed(DeltaTime);
+float UCarPawnMovementComponent::GetBaseVelocity() const
+{
+	return BaseVelocity;
 }
 
 void UCarPawnMovementComponent::IncreaseSpeed(float DeltaTime)
@@ -31,31 +34,4 @@ void UCarPawnMovementComponent::DecreaseSpeed(float DeltaTime)
 	{
 		AddVelocity(-PawnOwner->GetActorForwardVector() * BaseBrakeAccel * DeltaTime);
 	}
-}
-
-void UCarPawnMovementComponent::UpdateCurrentSpeed(float DeltaTime)
-{
-	if (PawnOwner->CheckCarsInFront() && FMath::IsNearlyZero(GetCurrentVelocity().Size(), 5.f))
-	{
-		SetIsStanding(true);
-		return;
-	}
-	else 
-	{
-		SetIsStanding(false);
-	}
-
-	//if (FMath::IsNearlyEqual(GetCurrentVelocity().Size(), BaseVelocity) && !PawnOwner->CheckCarsInFront())
-	//{
-	//	return;
-	//}
-	if (GetCurrentVelocity().Size() > BaseVelocity || PawnOwner->CheckCarsInFront())
-	{
-		DecreaseSpeed(DeltaTime);
-	}
-	else
-	{
-		IncreaseSpeed(DeltaTime);
-	}
-	
 }

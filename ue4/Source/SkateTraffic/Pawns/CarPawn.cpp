@@ -29,6 +29,16 @@ ACarPawn::ACarPawn()
 #endif
 }
 
+UBehaviorTree* ACarPawn::GetBehaviorTree() const
+{
+	return BehaviorTree;
+}
+
+UCarPawnMovementComponent* ACarPawn::GetCarPawnMovementComponent() const
+{
+	return CarPawnMovementComponent;
+}
+
 bool ACarPawn::CheckCarsInFront()
 {
 	FVector TraceStart = GetActorLocation();

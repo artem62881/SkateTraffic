@@ -18,6 +18,11 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	float GetBaseVelocity() const;
+	
+	void IncreaseSpeed(float DeltaTime);
+	void DecreaseSpeed(float DeltaTime);
+	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float BaseVelocity = 1000.f;
@@ -30,15 +35,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float FrontCarCheckLineTraceLength = 1000.f;
-
-	UFUNCTION(BlueprintCallable)
-	void IncreaseSpeed(float DeltaTime);
-	
-	UFUNCTION(BlueprintCallable)
-	void DecreaseSpeed(float DeltaTime);
 	
 private:
 	class ACarPawn* PawnOwner = nullptr;
 	
-	void UpdateCurrentSpeed(float DeltaTime);
 };
