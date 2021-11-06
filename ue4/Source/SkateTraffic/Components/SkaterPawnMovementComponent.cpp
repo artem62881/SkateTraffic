@@ -54,7 +54,7 @@ void USkaterPawnMovementComponent::PushForwardEnd()
 	CurrentPushForwardVelocity = 0.f;
 }
 
-void USkaterPawnMovementComponent::SwitchLaneStart(int8 Direction)
+void USkaterPawnMovementComponent::SwitchLaneStart(int32 Direction)
 {
 	if (PawnOwner->IsPushingForward())
 	{

@@ -88,9 +88,9 @@ bool USTBasePawnMovementComponent::IsStanding() const
 	return bIsStanding;
 }
 
-void USTBasePawnMovementComponent::SetIsStanding(bool bIn)
+void USTBasePawnMovementComponent::SetIsStanding(bool bIsStanding_In)
 {
-	bIsStanding = bIn;
+	bIsStanding = bIsStanding_In;
 }
 
 void USTBasePawnMovementComponent::UpdateCurrentVelocity(float DeltaTime)
@@ -123,11 +123,6 @@ void USTBasePawnMovementComponent::UpdatePawnAcceleration(float DeltaTime, FVect
 	}
 	
 	CurrentPawnAcceleration = (GravityAcceleration + FloorReactionAcceleration) * SurfaceFriction;
-	
-	//FVector ActorLocation = UpdatedComponent->GetComponentLocation();
-	//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + GravityAcceleration, FColor::Green);
-	//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + FloorReactionAcceleration, FColor::Green);
-	//DrawDebugLine(GetWorld(), ActorLocation, ActorLocation + CurrentPawnAcceleration, FColor::Red);
 }
 
 void USTBasePawnMovementComponent::RotatePawnTowardsFloorGradient(FVector FloorNormal)
@@ -142,7 +137,6 @@ void USTBasePawnMovementComponent::RotatePawnTowardsFloorGradient(FVector FloorN
 	{
 		Rot.Yaw = UpdatedComponent->GetComponentRotation().Yaw;
 	}
-	GEngine->AddOnScreenDebugMessage(1, -1.f, FColor::Green, FString::Printf(TEXT("Normal: %f %f %f \n Owner: %s"), FloorNormal.X, FloorNormal.Y, FloorNormal.Z, *GetPawnOwner()->GetName()));
 	UpdatedComponent->SetWorldRotation(Rot);
 }
 
@@ -180,14 +174,14 @@ bool USTBasePawnMovementComponent::CheckFloor(float DeltaTime, FVector& HitNorma
 	}
 }
 
-void USTBasePawnMovementComponent::SwitchLaneStart(int8 Direction)
+void USTBasePawnMovementComponent::SwitchLaneStart(int32 Direction)
 {
 	if (IsFalling() || GetCurrentVelocity().Size() < SwitchLaneSpeed)
 	{
 		return;
 	}
 
-	int8 NewLaneNum = GetCurrentLaneNum() + Direction;
+	int32 NewLaneNum = GetCurrentLaneNum() + Direction;
 	if (!LanesXLocations.IsValidIndex(NewLaneNum))
 	{
 		return;
@@ -198,6 +192,11 @@ void USTBasePawnMovementComponent::SwitchLaneStart(int8 Direction)
 	CurrentSwitchLaneVector = NewLaneLocation - CurrentSwitchLaneInitialLocation;
 
 	bIsSwitchingLanes = true;
+}
+
+TArray<float> USTBasePawnMovementComponent::GetLanesLocationsArray() const
+{
+	return LanesXLocations;
 }
 
 void USTBasePawnMovementComponent::SwitchLaneUpdate(float DeltaTime)
@@ -211,15 +210,11 @@ void USTBasePawnMovementComponent::SwitchLaneUpdate(float DeltaTime)
 		UE_LOG(LogTemp, Error, TEXT("Delta"));
 		SwitchLaneEnd();
 	}
-
-	/*if (IsSwitchingLanes())
-	{*/
-		FVector Delta = CurrentSwitchLaneVector * DeltaTime * SwitchLaneSpeed / CurrentSwitchLaneVector.Size();
-		FRotator NewRotation = PawnOwner->GetActorRotation();
-		FHitResult Hit;
-		SafeMoveUpdatedComponent(Delta, NewRotation, true, Hit);
-	//}
-
+	
+	FVector Delta = CurrentSwitchLaneVector * DeltaTime * SwitchLaneSpeed / CurrentSwitchLaneVector.Size();
+	FRotator NewRotation = PawnOwner->GetActorRotation();
+	FHitResult Hit;
+	SafeMoveUpdatedComponent(Delta, NewRotation, true, Hit);
 }
 
 void USTBasePawnMovementComponent::SwitchLaneEnd()

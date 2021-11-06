@@ -80,10 +80,9 @@ void ASkaterPawn::SlowDownStop()
 	GetSkaterPawnMovementComponent()->SetIsStanding(false);
 }
 
-void ASkaterPawn::SwitchLane(int8 Direction)
+void ASkaterPawn::SwitchLane(int32 Direction)
 {
 	GetSkaterPawnMovementComponent()->SwitchLaneStart(Direction);
-
 }
 
 float ASkaterPawn::GetCapsuleHalfHeight()

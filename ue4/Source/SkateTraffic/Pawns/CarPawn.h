@@ -21,12 +21,19 @@ public:
 
 	UBehaviorTree* GetBehaviorTree() const;
 	UCarPawnMovementComponent* GetCarPawnMovementComponent() const;
-	
+		
 	UFUNCTION(BlueprintCallable)
-	bool CheckCarsInFront();
+	ACarPawn* CheckCarsInFront();
 
 	UFUNCTION(BlueprintCallable)
-	bool CheckCarsOnNearbyLane(int32 Direction);
+	bool IsNearbyLaneAvailable(int32 Direction);
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetCurrentlyAvailableLane();
+
+	UFUNCTION(BlueprintCallable)
+	void SwitchLane(int32 Direction);
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UBoxComponent* BoxComponent;
@@ -44,7 +51,8 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* ArrowComponent;
 #endif
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float FrontCarCheckDistance = 500.f;
+	float FrontCarCheckDistance = 700.f;
+	
 };

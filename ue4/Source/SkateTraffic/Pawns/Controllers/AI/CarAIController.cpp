@@ -2,6 +2,8 @@
 
 
 #include "CarAIController.h"
+#include "../../CarPawn.h"
+#include "../../../Components/CarPawnMovementComponent.h"
 
 void ACarAIController::SetPawn(APawn* InPawn)
 {
@@ -27,14 +29,21 @@ void ACarAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 
-	UpdateCurrentSpeed(DeltaSeconds);
+	UpdateCurrentState(DeltaSeconds);
 }
 
-void ACarAIController::UpdateCurrentSpeed(float DeltaTime)
+void ACarAIController::UpdateCurrentState(float DeltaTime)
 {
 	UCarPawnMovementComponent* MovementComponent = StaticCast<UCarPawnMovementComponent*>(CachedPawnOwner->GetCarPawnMovementComponent());
+	if (!IsValid(MovementComponent))
+	{
+		return;
+	}
+
+	ForwardCar = CachedPawnOwner->CheckCarsInFront();
+	bool bForwardCarCheck = IsValid(ForwardCar);	
 	
-	if (CachedPawnOwner->CheckCarsInFront() && FMath::IsNearlyZero(MovementComponent->GetCurrentVelocity().Size(), 5.f))
+	if (bForwardCarCheck && FMath::IsNearlyZero(MovementComponent->GetCurrentVelocity().Size(), 5.f))
 	{
 		MovementComponent->SetIsStanding(true);
 		return;
@@ -43,17 +52,40 @@ void ACarAIController::UpdateCurrentSpeed(float DeltaTime)
 	{
 		MovementComponent->SetIsStanding(false);
 	}
-
-	//if (FMath::IsNearlyEqual(GetCurrentVelocity().Size(), BaseVelocity) && !PawnOwner->CheckCarsInFront())
-	//{
-	//	return;
-	//}
-	if (MovementComponent->GetCurrentVelocity().Size() > MovementComponent->GetBaseVelocity() || CachedPawnOwner->CheckCarsInFront())
+	
+	if (MovementComponent->GetCurrentVelocity().Size() > MovementComponent->GetCurrentTargetSpeed() || bForwardCarCheck)
 	{
 		MovementComponent->DecreaseSpeed(DeltaTime);
 	}
 	else
 	{
 		MovementComponent->IncreaseSpeed(DeltaTime);
+	}
+	
+	if (bForwardCarCheck)
+	{
+		UCarPawnMovementComponent* ForwardCarMovementComponent = StaticCast<UCarPawnMovementComponent*>(ForwardCar->GetCarPawnMovementComponent());
+		if (!IsValid(ForwardCarMovementComponent))
+		{
+			return;
+		}
+		
+		if (FMath::IsNearlyEqual(ForwardCarMovementComponent->GetCurrentTargetSpeed(), MovementComponent->GetCurrentTargetSpeed()))
+		{
+			return;	
+		}
+		
+		if (FMath::Abs(ForwardCarMovementComponent->GetCurrentTargetSpeed() - MovementComponent->GetCurrentTargetSpeed()) > 200.f)
+		{
+			const int32 Direction = CachedPawnOwner->GetCurrentlyAvailableLane();
+			if (Direction != 0)
+			{
+				CachedPawnOwner->SwitchLane(Direction);
+			}
+		}
+		else
+		{
+			MovementComponent->SetCurrentTargetSpeed(ForwardCarMovementComponent->GetCurrentTargetSpeed());
+		}
 	}
 }

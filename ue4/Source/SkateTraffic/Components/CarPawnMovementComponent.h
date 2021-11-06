@@ -18,25 +18,38 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	float GetBaseVelocity() const;
+	void SetInitialValues();
+	float GetCurrentTargetSpeed() const;
+	void SetCurrentTargetSpeed(float NewTargetSpeed);
+	float GetBaseTargetSpeed() const;
 	
 	void IncreaseSpeed(float DeltaTime);
 	void DecreaseSpeed(float DeltaTime);
 	
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseVelocity = 1000.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Initial values | Speed")
+	float MinBaseTargetSpeed = 1300.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseAccel = 500.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Initial values | Speed")
+	float MaxBaseTargetSpeed = 700.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float BaseBrakeAccel = 300.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Accel")
+	float MinBaseAccel = 400.f;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float FrontCarCheckLineTraceLength = 1000.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Accel")
+	float MaxBaseAccel = 700.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Brake")
+	float MinBaseBrakeAccel = 400.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Brake")
+	float MaxBaseBrakeAccel = 700.f;
 	
 private:
 	class ACarPawn* PawnOwner = nullptr;
-	
+
+	float BaseTargetSpeed = 0.f;
+	float CurrentTargetSpeed = 0.f;
+	float BaseAccel = 0.f;
+	float BaseBrakeAccel = 0.f;
 };

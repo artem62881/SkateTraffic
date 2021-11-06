@@ -25,7 +25,8 @@ public:
 	void PushForwardEnd();
 	void SlowDownStart();
 	void SlowDownStop();
-	void SwitchLane(int8 Direction);
+	
+	void SwitchLane(int32 Direction);
 
 	float GetCapsuleHalfHeight();
 
@@ -57,8 +58,7 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
 	UAnimMontage* SlowDownAnimMontage;
-
-
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float PushVelocity = 200.0f;
 

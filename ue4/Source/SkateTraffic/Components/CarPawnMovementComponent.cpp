@@ -9,8 +9,7 @@ void UCarPawnMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	PawnOwner = StaticCast<ACarPawn*>(GetOwner());
-
-	
+	SetInitialValues();
 }
 
 void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -18,9 +17,28 @@ void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-float UCarPawnMovementComponent::GetBaseVelocity() const
+void UCarPawnMovementComponent::SetInitialValues()
 {
-	return BaseVelocity;
+	BaseTargetSpeed = FMath::RandRange(MinBaseTargetSpeed, MaxBaseTargetSpeed);
+	BaseAccel = FMath::RandRange(MinBaseAccel, MaxBaseAccel);
+	BaseBrakeAccel = FMath::RandRange(MinBaseBrakeAccel, MaxBaseBrakeAccel);
+
+	SetCurrentTargetSpeed(BaseTargetSpeed);
+}
+
+float UCarPawnMovementComponent::GetCurrentTargetSpeed() const
+{
+	return CurrentTargetSpeed;
+}
+
+void UCarPawnMovementComponent::SetCurrentTargetSpeed(float NewTargetSpeed)
+{
+	CurrentTargetSpeed = NewTargetSpeed;
+}
+
+float UCarPawnMovementComponent::GetBaseTargetSpeed() const
+{
+	return BaseTargetSpeed;
 }
 
 void UCarPawnMovementComponent::IncreaseSpeed(float DeltaTime)

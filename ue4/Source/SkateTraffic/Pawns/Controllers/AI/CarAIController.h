@@ -26,6 +26,8 @@ protected:
 	
 private:
 	TWeakObjectPtr<class ACarPawn> CachedPawnOwner;
+	
+	void UpdateCurrentState(float DeltaTime);
 
-	void UpdateCurrentSpeed(float DeltaTime);
+	ACarPawn* ForwardCar = nullptr;
 };

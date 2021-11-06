@@ -6,7 +6,6 @@
 #include "../Components/CarPawnMovementComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/ArrowComponent.h"
-#include "Components/CapsuleComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "SkateTraffic/SkateTrafficTypes.h"
 #include "../SkateTrafficTypes.h"
@@ -39,7 +38,23 @@ UCarPawnMovementComponent* ACarPawn::GetCarPawnMovementComponent() const
 	return CarPawnMovementComponent;
 }
 
-bool ACarPawn::CheckCarsInFront()
+int32 ACarPawn::GetCurrentlyAvailableLane()
+{
+	if (IsNearbyLaneAvailable(1))
+	{
+		return 1;
+	}
+	else if (IsNearbyLaneAvailable(-1))
+	{
+		return -1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+ACarPawn* ACarPawn::CheckCarsInFront()
 {
 	FVector TraceStart = GetActorLocation();
 	FVector BoxHalfSize = BoxComponent->GetScaledBoxExtent();
@@ -52,15 +67,26 @@ bool ACarPawn::CheckCarsInFront()
 	
 	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEnd, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true))
 	{
-		return true;
+		if (Hit.GetActor()->IsA<ACarPawn>())
+		{
+			return StaticCast<ACarPawn*>(Hit.GetActor());
+		}
 	}
-	return false;
+	return nullptr;
 }
 
-bool ACarPawn::CheckCarsOnNearbyLane(int32 Direction)
+bool ACarPawn::IsNearbyLaneAvailable(int32 Direction)
 {
+	if (!GetCarPawnMovementComponent()->GetLanesLocationsArray().IsValidIndex(GetCarPawnMovementComponent()->GetCurrentLaneNum() + Direction))
+	{
+		return false;
+	}
+	
 	FVector TraceStart = GetActorLocation();
-	FVector TraceEnd = TraceStart + GetActorRightVector() * Direction * 450.f;
+	FVector TraceEndFirst = TraceStart + GetActorRightVector() * Direction * 450.f;
+	FVector TraceEndSecond = TraceStart + GetActorRightVector() * Direction * 450.f + GetActorForwardVector() * FrontCarCheckDistance;
+	FVector TraceEndThird = TraceStart + GetActorRightVector() * Direction * 450.f - GetActorForwardVector() * FrontCarCheckDistance;
+	
 	FVector BoxHalfSize = BoxComponent->GetScaledBoxExtent();
 	FRotator Rotation = GetActorRotation();
 	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_CarsCheck);
@@ -68,9 +94,22 @@ bool ACarPawn::CheckCarsOnNearbyLane(int32 Direction)
 	ActorsToIgnore.AddUnique(this);
 	FHitResult Hit;
 	
-	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEnd, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true))
+	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEndFirst, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true))
 	{
-		return true;
+		return false;
 	}
-	return false;
+	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEndSecond, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true))
+	{
+		return false;
+	}
+	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEndThird, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, EDrawDebugTrace::ForOneFrame, Hit, true))
+	{
+		return false;
+	}
+	return true;
+}
+
+void ACarPawn::SwitchLane(int32 Direction)
+{
+	GetCarPawnMovementComponent()->SwitchLaneStart(Direction);
 }

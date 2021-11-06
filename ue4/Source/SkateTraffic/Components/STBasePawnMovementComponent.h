@@ -31,8 +31,9 @@ public:
 	bool IsStanding() const;
 	void SetIsStanding(bool bIn);
 
-	virtual void SwitchLaneStart(int8 Direction);
+	virtual void SwitchLaneStart(int32 Direction);
 
+	TArray<float> GetLanesLocationsArray() const;
 	float GetLaneXLocationPerNum(int8 Num) const;
 	int8 GetCurrentLaneNum() const;
 

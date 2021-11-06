@@ -23,7 +23,7 @@ public:
 	void PushForwardStart();
 	void PushForwardEnd();
 
-	virtual void SwitchLaneStart(int8 Direction) override;
+	virtual void SwitchLaneStart(int32 Direction) override;
 
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
