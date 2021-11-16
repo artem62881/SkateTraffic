@@ -6,4 +6,4 @@
 
 #define ECC_CarsCheck ECC_GameTraceChannel1
 
-FName BB_FrontCar = FName("FrontCar");
+FName SocketTileAttach = FName("TileAttachSocket");
