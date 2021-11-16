@@ -52,4 +52,5 @@ private:
 	float CurrentTargetSpeed = 0.f;
 	float BaseAccel = 0.f;
 	float BaseBrakeAccel = 0.f;
+	uint32 InitialLane = 1;
 };

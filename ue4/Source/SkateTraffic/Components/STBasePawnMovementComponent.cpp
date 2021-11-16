@@ -188,9 +188,8 @@ void USTBasePawnMovementComponent::SwitchLaneStart(int32 Direction)
 	}
 
 	CurrentSwitchLaneInitialLocation = PawnOwner->GetActorLocation();
-	FVector NewLaneLocation = FVector(CachedPawnInitialLocation.X + GetLaneXLocationPerNum(NewLaneNum), CurrentSwitchLaneInitialLocation.Y, CurrentSwitchLaneInitialLocation.Z);
-	CurrentSwitchLaneVector = NewLaneLocation - CurrentSwitchLaneInitialLocation;
-
+	CurrentSwitchLaneVector = UpdatedComponent->GetRightVector() * (GetLaneXLocationPerNum(NewLaneNum) - GetLaneXLocationPerNum(GetCurrentLaneNum()));
+	
 	bIsSwitchingLanes = true;
 }
 
@@ -207,7 +206,6 @@ void USTBasePawnMovementComponent::SwitchLaneUpdate(float DeltaTime)
 	}
 	if (FMath::IsNearlyEqual(PawnOwner->GetActorLocation().X, (CurrentSwitchLaneInitialLocation + CurrentSwitchLaneVector).X, 5.f))
 	{
-		UE_LOG(LogTemp, Error, TEXT("Delta"));
 		SwitchLaneEnd();
 	}
 	

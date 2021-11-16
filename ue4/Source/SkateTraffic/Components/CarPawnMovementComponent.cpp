@@ -19,11 +19,13 @@ void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 
 void UCarPawnMovementComponent::SetInitialValues()
 {
+	InitialLane = FMath::RandRange(0, GetLanesLocationsArray().Num());
+	
 	BaseTargetSpeed = FMath::RandRange(MinBaseTargetSpeed, MaxBaseTargetSpeed);
 	BaseAccel = FMath::RandRange(MinBaseAccel, MaxBaseAccel);
 	BaseBrakeAccel = FMath::RandRange(MinBaseBrakeAccel, MaxBaseBrakeAccel);
 
-	SetCurrentTargetSpeed(BaseTargetSpeed);
+	SetCurrentTargetSpeed(BaseTargetSpeed);	
 }
 
 float UCarPawnMovementComponent::GetCurrentTargetSpeed() const

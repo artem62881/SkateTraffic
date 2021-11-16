@@ -8,7 +8,6 @@
 #include "Components/ArrowComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "SkateTraffic/SkateTrafficTypes.h"
-#include "../SkateTrafficTypes.h"
 
 ACarPawn::ACarPawn()
 {

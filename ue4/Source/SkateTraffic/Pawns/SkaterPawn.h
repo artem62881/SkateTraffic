@@ -10,6 +10,7 @@
  * 
  */
 class USkaterPawnMovementComponent;
+class UCapsuleComponent;
 class UAnimMontage;
 UCLASS()
 class SKATETRAFFIC_API ASkaterPawn : public ASTBasePawn
@@ -34,13 +35,14 @@ public:
 	bool IsSlowingDown() const;
 
 	USkaterPawnMovementComponent* GetSkaterPawnMovementComponent() { return SkaterPawnMovementComponent; };
-
+	UCapsuleComponent* GetCapsuleComponent() { return CapsuleComponent; }
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class UCapsuleComponent* CapsuleComponent;
+	UCapsuleComponent* CapsuleComponent;
 
 	UPROPERTY(VisibleAnywhere)
-	class USkaterPawnMovementComponent* SkaterPawnMovementComponent;
+	USkaterPawnMovementComponent* SkaterPawnMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class USkeletalMeshComponent* CharacterMeshComponent;
