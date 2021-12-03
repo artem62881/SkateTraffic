@@ -16,6 +16,7 @@ void USkaterPawnMovementComponent::BeginPlay()
 	}
 	PawnOwner = StaticCast<ASkaterPawn*>(GetOwner());
 	SetPawnInitialVelocity(InitialVelocity * GetPawnOwner()->GetActorForwardVector());
+	SetCurrentLaneNum(1);
 }
 
 void USkaterPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

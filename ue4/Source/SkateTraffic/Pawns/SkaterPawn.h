@@ -29,13 +29,13 @@ public:
 	
 	void SwitchLane(int32 Direction);
 
-	float GetCapsuleHalfHeight();
+	float GetCapsuleHalfHeight() const;
 
 	bool IsPushingForward() const;
 	bool IsSlowingDown() const;
 
-	USkaterPawnMovementComponent* GetSkaterPawnMovementComponent() { return SkaterPawnMovementComponent; };
-	UCapsuleComponent* GetCapsuleComponent() { return CapsuleComponent; }
+	USkaterPawnMovementComponent* GetSkaterPawnMovementComponent() const;
+	UCapsuleComponent* GetCapsuleComponent() const;
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -75,4 +75,6 @@ private:
 	FTimerHandle PushForwardTimer;
 
 	bool bIsSlowingDown = false;
+	
+
 };

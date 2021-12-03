@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BaseTileActor.generated.h"
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnTileKilled, class ABaseTileActor*);
+//DECLARE_MULTICAST_DELEGATE_OneParam(FOnTileKilled, class ABaseTileActor*);
 
 UENUM(BlueprintType)
 enum class ETileType : uint8
@@ -28,7 +28,11 @@ public:
 
 	ETileType GetTileType() const;
 
-	FOnTileKilled OnTileKilled;
+	float GetTileAngle() const;
+
+	float GetTileLength() const;
+
+	//FOnTileKilled OnTileKilled;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -36,16 +40,22 @@ protected:
 	virtual void OnConstruction(const FTransform& Transform) override;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneComponent* BuildingsComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* RoadMesh;
 		
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UBoxComponent* OverlapBox;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	float TileLength = 5000.f;
+	class UBoxComponent* DeathBox;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	ETileType TileType = ETileType::StraightRoad;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	float TileLength = 5000.f;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float OverlapBoxOffset = 500.f;
@@ -55,6 +65,9 @@ private:
 
 	UFUNCTION()
 	void OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void OnDeathBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
 	bool IsOverlappingCharacterCapsule(AActor* OtherActor, UPrimitiveComponent* OtherComp);
 };
