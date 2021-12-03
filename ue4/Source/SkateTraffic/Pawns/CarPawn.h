@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "STBasePawn.h"
 #include "BehaviorTree/BehaviorTree.h"
+#include "Components/BoxComponent.h"
 #include "SkateTraffic/Components/CarPawnMovementComponent.h"
 #include "CarPawn.generated.h"
 
@@ -21,6 +22,8 @@ public:
 
 	UBehaviorTree* GetBehaviorTree() const;
 	UCarPawnMovementComponent* GetCarPawnMovementComponent() const;
+
+	UBoxComponent* GetCollisionBox() const;
 		
 	UFUNCTION(BlueprintCallable)
 	ACarPawn* CheckCarsInFront();
@@ -39,7 +42,7 @@ protected:
 	class UBoxComponent* BoxComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class USkeletalMeshComponent* SkeletalMesh;
+	class UStaticMeshComponent* StaticMesh;
 
 	UPROPERTY(VisibleAnywhere)
 	class UCarPawnMovementComponent* CarPawnMovementComponent;
@@ -54,5 +57,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float FrontCarCheckDistance = 700.f;
-	
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bIsDebugEnabled = false;
 };

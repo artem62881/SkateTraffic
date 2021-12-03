@@ -12,8 +12,6 @@ ATilesSpawnActor::ATilesSpawnActor()
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent->SetMobility(EComponentMobility::Static);
-	CurrentlySpawnedTiles.Reserve(SpawnedTilesMaxNum);
-	CurrentlySpawnedTiles.SetNumZeroed(SpawnedTilesMaxNum);
 
 #if WITH_EDITORONLY_DATA
 	PreviewMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("PreviewMesh"));
@@ -24,7 +22,8 @@ ATilesSpawnActor::ATilesSpawnActor()
 	FVector ArrowOffset = FVector::UpVector * 100.f;
 	PreviewArrow->SetRelativeLocation(ArrowOffset);	
 #endif
-	
+
+	ObjectsSpawnComponent = CreateDefaultSubobject<UObjectsSpawnComponent>(TEXT("ObjectsSpawnComponent"));
 }
 
 TSubclassOf<ABaseTileActor> ATilesSpawnActor::GetTileToSpawn(uint8 TileIndex) const
@@ -55,12 +54,17 @@ TSubclassOf<ABaseTileActor> ATilesSpawnActor::GetTileToSpawn(uint8 TileIndex) co
 void ATilesSpawnActor::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	CurrentlySpawnedTiles.Reserve(SpawnedTilesMaxNum);
+	CurrentlySpawnedTiles.SetNumZeroed(SpawnedTilesMaxNum);
 	SpawnTiles();
+	
 	if (IsValid(PreviewMesh) && IsValid(PreviewArrow))
 	{
 		PreviewArrow->DestroyComponent();
 		PreviewMesh->DestroyComponent();
 	}
+	
 }
 
 void ATilesSpawnActor::Tick(float DeltaTime)
@@ -109,6 +113,10 @@ void ATilesSpawnActor::SpawnTiles()
 			CurrentlySpawnedTiles[i]->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepWorldTransform);
 			CurrentlySpawnedTiles[i]->SetOwner(this);
 			CurrentlySpawnedTiles[i]->OnDestroyed.AddDynamic(this, &ATilesSpawnActor::OnTileDestroyed);
+			if (OnTileSpawned.IsBound())
+			{
+				OnTileSpawned.Broadcast(CurrentlySpawnedTiles[i]);
+			}
 		}
 	}
 }
@@ -137,6 +145,8 @@ void ATilesSpawnActor::OnTileDestroyed(AActor* DestroyedActor)
 	{
 		return;
 	}
+
+	ObjectsSpawnComponent->DestroyItemsOnTile(DestroyedTile);
 	
 	if (GetCurrentlySpawnedTiles().IsValidIndex(GetCurrentlySpawnedTiles().Find(DestroyedTile)) && IsValid(GetCurrentlySpawnedTiles()[GetCurrentlySpawnedTiles().Find(DestroyedTile)]))
 	{
