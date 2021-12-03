@@ -28,10 +28,10 @@ public:
 	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Initial values | Speed")
-	float MinBaseTargetSpeed = 700.f;
+	float MinBaseTargetSpeed = 1300.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Initial values | Speed")
-	float MaxBaseTargetSpeed = 1300.f;
+	float MaxBaseTargetSpeed = 700.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Accel")
 	float MinBaseAccel = 400.f;
@@ -48,7 +48,7 @@ protected:
 private:
 	class ACarPawn* PawnOwner = nullptr;
 
-	//float BaseTargetSpeed = 0.f;
+	float BaseTargetSpeed = 0.f;
 	float CurrentTargetSpeed = 0.f;
 	float BaseAccel = 0.f;
 	float BaseBrakeAccel = 0.f;

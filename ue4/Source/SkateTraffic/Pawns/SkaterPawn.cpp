@@ -3,21 +3,18 @@
 
 #include "SkaterPawn.h"
 #include "Components/SkeletalMeshComponent.h"
-#include "Components/StaticMeshComponent.h"
-#include "Components/CapsuleComponent.h"
-#include "Components/ArrowComponent.h"
-//#include "GameFramework/PawnMovementComponent.h"
+#include <Components/StaticMeshComponent.h>
+#include <Components/CapsuleComponent.h>
+#include <Components/ArrowComponent.h>
+#include "GameFramework/PawnMovementComponent.h"
 #include "../Components/SkaterPawnMovementComponent.h"
-//#include "Kismet/KismetSystemLibrary.h"
-
-//#include "CarPawn.h"
+#include <Kismet/KismetSystemLibrary.h>
 
 ASkaterPawn::ASkaterPawn()
 {
 	CapsuleComponent = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CapsuleComponent"));
 	CapsuleComponent->SetCapsuleSize(40.f, 100.f);
 	CapsuleComponent->SetCollisionProfileName(FName("Pawn"));
-	CapsuleComponent->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	RootComponent = CapsuleComponent;
 
 	//SkaterPawnMovementComponent = StaticCast<USkaterPawnMovementComponent*>(GetSTBasePawnMovementComponent());
@@ -39,6 +36,7 @@ ASkaterPawn::ASkaterPawn()
 void ASkaterPawn::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 void ASkaterPawn::PushForwardStart()
@@ -87,7 +85,7 @@ void ASkaterPawn::SwitchLane(int32 Direction)
 	GetSkaterPawnMovementComponent()->SwitchLaneStart(Direction);
 }
 
-float ASkaterPawn::GetCapsuleHalfHeight() const
+float ASkaterPawn::GetCapsuleHalfHeight()
 {
 	return CapsuleComponent->GetScaledCapsuleHalfHeight();
 }
@@ -100,14 +98,4 @@ bool ASkaterPawn::IsPushingForward() const
 bool ASkaterPawn::IsSlowingDown() const
 {
 	return bIsSlowingDown;
-}
-
-USkaterPawnMovementComponent* ASkaterPawn::GetSkaterPawnMovementComponent() const
-{
-	return SkaterPawnMovementComponent;
-}
-
-UCapsuleComponent* ASkaterPawn::GetCapsuleComponent() const
-{
-	return CapsuleComponent;
 }

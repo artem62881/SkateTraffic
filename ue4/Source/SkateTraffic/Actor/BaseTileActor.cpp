@@ -11,12 +11,8 @@
 ABaseTileActor::ABaseTileActor()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	
-	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("StartingPoint"));
 
-	BuildingsComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Buildings"));
-	BuildingsComponent->SetupAttachment(RootComponent);
-	BuildingsComponent->SetMobility(EComponentMobility::Static);
+	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("StartingPoint"));
 	
 	RoadMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RoadMesh"));
 	RoadMesh->SetupAttachment(RootComponent);
@@ -25,13 +21,16 @@ ABaseTileActor::ABaseTileActor()
 	OverlapBox = CreateDefaultSubobject<UBoxComponent>(TEXT("OverlapBox"));
 	OverlapBox->SetupAttachment(RootComponent);
 	OverlapBox->SetMobility(EComponentMobility::Static);
-	OverlapBox->SetCollisionProfileName("OverlapAll");
-
-
-	DeathBox = CreateDefaultSubobject<UBoxComponent>(TEXT("DeathBox"));
-	DeathBox->SetupAttachment(RootComponent);
-	DeathBox->SetMobility(EComponentMobility::Static);
-	DeathBox->SetCollisionProfileName("OverlapAll");
+	OverlapBox->OnComponentEndOverlap.AddDynamic(this, &ABaseTileActor::OnBoxEndOverlap);
+	
+	/*if (GetOwner()->IsA<ATilesSpawnActor>())
+	{
+		CachedOwner = StaticCast<ATilesSpawnActor*>(GetOwner());
+	}
+	else
+	{
+		CachedOwner = nullptr;
+	}*/
 }
 
 UStaticMeshComponent* ABaseTileActor::GetMesh() const
@@ -44,28 +43,9 @@ ETileType ABaseTileActor::GetTileType() const
 	return TileType;
 }
 
-float ABaseTileActor::GetTileAngle() const
-{
-	return RoadAngle;
-}
-
-float ABaseTileActor::GetTileLength() const
-{
-	if (TileType == ETileType::Crossroads)
-	{
-		return RoadMesh->GetStaticMesh()->GetBoundingBox().GetSize().Y;
-	}
-	else
-	{
-		return TileLength;
-	}
-}
-
 void ABaseTileActor::BeginPlay()
 {
 	Super::BeginPlay();
-	OverlapBox->OnComponentEndOverlap.AddDynamic(this, &ABaseTileActor::OnBoxEndOverlap);
-	DeathBox->OnComponentBeginOverlap.AddDynamic(this, &ABaseTileActor::OnDeathBoxBeginOverlap);
 }
 
 void ABaseTileActor::OnConstruction(const FTransform& Transform)
@@ -89,36 +69,30 @@ void ABaseTileActor::OnConstruction(const FTransform& Transform)
 
 void ABaseTileActor::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	//UE_LOG(LogTemp, Warning, TEXT("Delegate 1"));
+	/*UE_LOG(LogTemp, Warning, TEXT("Delegate 1"));
 	if (!IsOverlappingCharacterCapsule(OtherActor, OtherComp))
 	{
 		return;
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Delegate 2"));
+	UE_LOG(LogTemp, Warning, TEXT("Delegate 2"));
+	if (OnTileKilled.IsBound())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Delegate 3"));
+		OnTileKilled.Broadcast(this);
+	};*/
 	this->Destroy();
 }
 
-void ABaseTileActor::OnDeathBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	//UE_LOG(LogTemp, Error, TEXT("DEATH BOX"));
-	OtherActor->Destroy();
-}
-
-
 bool ABaseTileActor::IsOverlappingCharacterCapsule(AActor* OtherActor, UPrimitiveComponent* OtherComp)
 {
-	//UE_LOG(LogTemp, Error, TEXT("Capsule check 1"));
 	APlayerPawn* PlayerPawn = Cast<APlayerPawn>(OtherActor);
 	if (!IsValid(PlayerPawn))
 	{
 		return false;
 	}
-	//UE_LOG(LogTemp, Error, TEXT("Capsule check 2"));
-	//if (Cast<UCapsuleComponent>(OtherComp) != PlayerPawn->GetCapsuleComponent())
-	//{
-	//	return false;
-	//}
-	//UE_LOG(LogTemp, Error, TEXT("Capsule check 3"));
+	if (Cast<UCapsuleComponent>(OtherComp) != PlayerPawn->GetCapsuleComponent())
+	{
+		return false;
+	}
 	return true;
 }

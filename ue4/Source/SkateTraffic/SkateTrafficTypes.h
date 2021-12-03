@@ -5,15 +5,5 @@
 #include "CoreMinimal.h"
 
 #define ECC_CarsCheck ECC_GameTraceChannel1
-#define ECC_PickableItem ECC_GameTraceChannel2
 
-UENUM(BlueprintType)
-enum class ESTGameState : uint8
-{
-	WaitingToStart = 0,
-	InProgress,
-	Pause,
-	GameOver
-};
-
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChangedSignature, ESTGameState);
+FName SocketTileAttach = FName("TileAttachSocket");

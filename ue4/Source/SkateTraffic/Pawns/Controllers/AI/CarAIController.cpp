@@ -80,10 +80,7 @@ void ACarAIController::UpdateCurrentState(float DeltaTime)
 			const int32 Direction = CachedPawnOwner->GetCurrentlyAvailableLane();
 			if (Direction != 0)
 			{
-				if (!MovementComponent->IsSwitchingLanes())
-				{
-					CachedPawnOwner->SwitchLane(Direction);
-				}
+				CachedPawnOwner->SwitchLane(Direction);
 			}
 		}
 		else

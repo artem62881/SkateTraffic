@@ -3,13 +3,13 @@
 
 #include "CarPawnMovementComponent.h"
 #include "../Pawns/CarPawn.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 void UCarPawnMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	PawnOwner = StaticCast<ACarPawn*>(GetOwner());
-	//PawnOwner->SetActorRelativeLocation(PawnOwner->GetActorRightVector() * GetLaneXLocationPerNum(InitialLane));
-	//SetInitialValues();
+	SetInitialValues();
 }
 
 void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -19,15 +19,13 @@ void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 
 void UCarPawnMovementComponent::SetInitialValues()
 {
-	float BaseTargetSpeed = FMath::RandRange(MinBaseTargetSpeed, MaxBaseTargetSpeed);
+	InitialLane = FMath::RandRange(0, GetLanesLocationsArray().Num());
+	
+	BaseTargetSpeed = FMath::RandRange(MinBaseTargetSpeed, MaxBaseTargetSpeed);
 	BaseAccel = FMath::RandRange(MinBaseAccel, MaxBaseAccel);
 	BaseBrakeAccel = FMath::RandRange(MinBaseBrakeAccel, MaxBaseBrakeAccel);
 
-	SetCurrentTargetSpeed(BaseTargetSpeed);
-	/*UE_LOG(LogTemp, Warning, TEXT("%s | Speed: %f"), *GetOwner()->GetName(), CurrentTargetSpeed);
-	UE_LOG(LogTemp, Warning, TEXT("%s | Accel: %f"), *GetOwner()->GetName(), BaseAccel);
-	UE_LOG(LogTemp, Warning, TEXT("%s | BrakeAccel: %f"), *GetOwner()->GetName(), BaseBrakeAccel);
-	UE_LOG(LogTemp, Warning, TEXT("------------------------------------------------"));*/
+	SetCurrentTargetSpeed(BaseTargetSpeed);	
 }
 
 float UCarPawnMovementComponent::GetCurrentTargetSpeed() const
@@ -40,10 +38,10 @@ void UCarPawnMovementComponent::SetCurrentTargetSpeed(float NewTargetSpeed)
 	CurrentTargetSpeed = NewTargetSpeed;
 }
 
-/*float UCarPawnMovementComponent::GetBaseTargetSpeed() const
+float UCarPawnMovementComponent::GetBaseTargetSpeed() const
 {
 	return BaseTargetSpeed;
-}*/
+}
 
 void UCarPawnMovementComponent::IncreaseSpeed(float DeltaTime)
 {

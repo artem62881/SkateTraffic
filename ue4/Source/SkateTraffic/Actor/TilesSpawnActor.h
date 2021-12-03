@@ -6,10 +6,7 @@
 #include "BaseTileActor.h"
 #include "Components/ArrowComponent.h"
 #include "GameFramework/Actor.h"
-#include "SkateTraffic/Components/ObjectsSpawnComponent.h"
 #include "TilesSpawnActor.generated.h"
-
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnTileSpawned, ABaseTileActor*);
 
 class ABaseTileActor;
 
@@ -32,8 +29,6 @@ public:
 
 	TSubclassOf<ABaseTileActor> GetTileToSpawn(uint8 TileIndex) const;
 
-	FOnTileSpawned OnTileSpawned;
-	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -47,9 +42,6 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UArrowComponent* PreviewArrow;
 #endif
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UObjectsSpawnComponent* ObjectsSpawnComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	uint8 SpawnedTilesMaxNum = 10;
@@ -62,7 +54,7 @@ private:
 	
 	UFUNCTION()
 	void OnTileDestroyed(AActor* DestroyedActor);
-	
+
 	void UpdateTilesArray();
 
 };
