@@ -9,6 +9,8 @@
 #include "SkateTraffic/Actor/TilesSpawnActor.h"
 #include "SkateTraffic/Pawns/CarPawn.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogObjectsSpawnComponent, All, All)
+
 // Sets default values for this component's properties
 UObjectsSpawnComponent::UObjectsSpawnComponent()
 {
@@ -23,6 +25,7 @@ void UObjectsSpawnComponent::DestroyItemsOnTile(ABaseTileActor* DestroyedTile)
 	{
 		if (Item->IsA<APickableItem>())
 		{
+			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("Item to destroy: %s"), *Item->GetName());
 			Item->Destroy();
 		}
 	}
@@ -67,19 +70,6 @@ void UObjectsSpawnComponent::UpdateSpawnedObjectsArray()
 
 void UObjectsSpawnComponent::SpawnObjects(FObjectToSpawn ObjectToSpawn, ABaseTileActor* TileToSpawnIn)
 {
-	UpdateSpawnedObjectsArray();
-	/*for (uint8 i = 0; i < CurrentlySpawnedObjects.Num(); ++i)
-	{
-		if (CurrentlySpawnedObjects[i] != nullptr)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Objects array %i: %s"), i, *CurrentlySpawnedObjects[i]->GetName());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Objects array %i: NULL"), i);
-		}
-	}
-	UE_LOG(LogTemp, Warning, TEXT("----------------------------------------------"));*/
 	float TileLength = TileToSpawnIn->GetTileLength();
 	float TileAngle = TileToSpawnIn->GetTileAngle();
 	
@@ -99,20 +89,20 @@ void UObjectsSpawnComponent::SpawnObjects(FObjectToSpawn ObjectToSpawn, ABaseTil
 		FRotator SpawnRotation = FRotator::ZeroRotator;
 	
 		APickableItem* SpawnedObject = GetWorld()->SpawnActor<APickableItem>(ObjectToSpawn.ObjectType, SpawnLocation, SpawnRotation);
+		//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("New object: %s | 1"), *SpawnedObject->GetName());
 		if (IsValid(SpawnedObject))
 		{
 			uint32 ObjectNum = CurrentlySpawnedObjects.AddUnique(SpawnedObject);
 			CurrentlySpawnedObjects[ObjectNum]->AttachToActor(TileToSpawnIn, FAttachmentTransformRules::KeepWorldTransform);
 			CurrentlySpawnedObjects[ObjectNum]->SetOwner(TileToSpawnIn);
 			CurrentlySpawnedObjects[ObjectNum]->OnDestroyed.AddDynamic(this, &UObjectsSpawnComponent::OnObjectDestroyed);
+			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("New object: %s | 2"), *CurrentlySpawnedObjects[ObjectNum]->GetName());
 		}
 	}
 }
 
 void UObjectsSpawnComponent::SpawnCars(FObjectToSpawn ObjectToSpawn, ABaseTileActor* TileToSpawnIn)
 {
-	UpdateSpawnedObjectsArray();
-	
 	FVector TileLocation = TileToSpawnIn->GetActorLocation();
 	//FRotator TileRotation = TileToSpawnIn->GetActorRotation();
 	float TileLength = TileToSpawnIn->GetTileLength();
@@ -150,11 +140,13 @@ void UObjectsSpawnComponent::SpawnCars(FObjectToSpawn ObjectToSpawn, ABaseTileAc
 		}
 		
 		ACarPawn* SpawnedCar = GetWorld()->SpawnActor<ACarPawn>(ObjectToSpawn.ObjectType, SpawnLocation, SpawnRotation);
+		//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("New car: %s | 1"), *SpawnedCar->GetName());
 		if (IsValid(SpawnedCar))
 		{
 			SpawnedCar->GetCarPawnMovementComponent()->SetCurrentLaneNum(RandLaneNum);
 			uint8 Num = CurrentlySpawnedObjects.AddUnique(SpawnedCar);
 			CurrentlySpawnedObjects[Num]->OnDestroyed.AddDynamic(this, &UObjectsSpawnComponent::OnObjectDestroyed);
+			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("New car: %s | 2"), *CurrentlySpawnedObjects[Num]->GetName());
 			//UE_LOG(LogTemp, Warning, TEXT("%i: Name: %s | SpawnLocation : %s | RealLocation: %s"), i, *SpawnedCar->GetName(), *SpawnLocation.ToString(), *SpawnedCar->GetActorLocation().ToString());
 		}
 	}
@@ -162,8 +154,11 @@ void UObjectsSpawnComponent::SpawnCars(FObjectToSpawn ObjectToSpawn, ABaseTileAc
 
 void UObjectsSpawnComponent::OnTileSpawned(ABaseTileActor* SpawnedTile)
 {
+	UpdateSpawnedObjectsArray();
+	
 	for (FObjectToSpawn Object : ObjectsToSpawn)
 	{
+		//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("1. Object type ready to spawn: %s"), *Object.ObjectType->GetName());
 		if (Object.ObjectType == nullptr)
 		{
 			return;
@@ -171,14 +166,28 @@ void UObjectsSpawnComponent::OnTileSpawned(ABaseTileActor* SpawnedTile)
 
 		if (Object.ObjectType->IsChildOf<APickableItem>())
 		{
+			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("2. Object type ready to spawn: %s"), *Object.ObjectType->GetName());
 			SpawnObjects(Object, SpawnedTile);
 		}
 
 		if (Object.ObjectType->IsChildOf<ACarPawn>() && SpawnedTile->GetTileType() != ETileType::Crossroads)
 		{
+			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("2. Object type ready to spawn: %s"), *Object.ObjectType->GetName());
 			SpawnCars(Object, SpawnedTile);
 		}
 	}
+	/*for (uint8 i = 0; i < CurrentlySpawnedObjects.Num(); ++i)
+	{
+		if (CurrentlySpawnedObjects[i] != nullptr)
+		{
+			UE_LOG(LogObjectsSpawnComponent, Display, TEXT("Objects array %i: %s"), i, *CurrentlySpawnedObjects[i]->GetName());
+		}
+		else
+		{
+			UE_LOG(LogObjectsSpawnComponent, Display, TEXT("Objects array %i: NULL"), i);
+		}
+	}*/
+	UE_LOG(LogObjectsSpawnComponent, Display, TEXT("----------------------------------------------"));
 }
 
 void UObjectsSpawnComponent::OnObjectDestroyed(AActor* DestroyedActor)
