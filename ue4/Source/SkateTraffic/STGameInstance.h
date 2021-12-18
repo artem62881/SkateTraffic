@@ -16,13 +16,9 @@ class SKATETRAFFIC_API USTGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
-	void PlayMusic();
-
+	FName GetStartupLevelName() const { return StartupLevelName; };
+	
 protected:
-
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	//UMediaPlaylist* MusicPlaylist;
-
-private:
-	//UMediaSource* CurrentSong;
+	UPROPERTY(EditDefaultsOnly)
+	FName StartupLevelName = NAME_None;
 };
