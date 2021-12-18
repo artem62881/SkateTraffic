@@ -3,9 +3,6 @@
 
 #include "STPlayerState.h"
 
-#include "SkateTraffic/Pawns/PlayerPawn.h"
-
-
 
 void ASTPlayerState::BeginPlay()
 {
@@ -20,5 +17,5 @@ void ASTPlayerState::AddScore(uint32 ScoreToAdd)
 
 void ASTPlayerState::SetCurrentDistance(uint32 NewDistance)
 {
-	CurrentDistance = NewDistance/100;	
+	CurrentDistance = NewDistance/1000;	
 }
