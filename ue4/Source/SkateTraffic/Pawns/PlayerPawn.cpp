@@ -57,8 +57,6 @@ void APlayerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	PlayerState->SetCurrentDistance((GetActorLocation() - InitialLocation).Size());
-	GEngine->AddOnScreenDebugMessage(2, -1.f, FColor::Green, FString::Printf(TEXT("Distance: %i"), PlayerState->GetCurrentDistance()));
-	GEngine->AddOnScreenDebugMessage(3, -1.f, FColor::Green, FString::Printf(TEXT("Score: %i"), PlayerState->GetCurrentScore()));
 }
 
 void APlayerPawn::OnDeathCapsuleHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor,

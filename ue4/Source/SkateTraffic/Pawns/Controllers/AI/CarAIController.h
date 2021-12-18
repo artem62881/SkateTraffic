@@ -10,7 +10,6 @@
 /**
  * 
  */
-class UBehaviorTree;
 UCLASS()
 class SKATETRAFFIC_API ACarAIController : public AAIController
 {
@@ -20,14 +19,14 @@ public:
 	virtual void SetPawn(APawn* InPawn) override;
 
 protected:
-	virtual void BeginPlay() override;;
+	virtual void BeginPlay() override;
+	
 	virtual void Tick(float DeltaSeconds) override;
 
-	
 private:
 	TWeakObjectPtr<class ACarPawn> CachedPawnOwner;
 	
 	void UpdateCurrentState(float DeltaTime);
-
-	ACarPawn* ForwardCar = nullptr;
+	
+	void TrySetNewTargetVelocity(ACarPawn* ForwardCar);
 };

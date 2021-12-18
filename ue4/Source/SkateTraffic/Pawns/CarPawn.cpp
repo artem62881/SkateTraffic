@@ -60,7 +60,7 @@ int32 ACarPawn::GetCurrentlyAvailableLane()
 	}
 }
 
-ACarPawn* ACarPawn::CheckCarsInFront()
+ASTBasePawn* ACarPawn::CheckCarsInFront()
 {
 	FVector TraceStart = GetActorLocation();
 	FVector BoxHalfSize = BoxComponent->GetScaledBoxExtent();
@@ -75,9 +75,9 @@ ACarPawn* ACarPawn::CheckCarsInFront()
 	
 	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEnd, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, DrawDebugType, Hit, true))
 	{
-		if (Hit.GetActor()->IsA<ACarPawn>())
+		if (Hit.GetActor()->IsA<ASTBasePawn>())
 		{
-			return StaticCast<ACarPawn*>(Hit.GetActor());
+			return StaticCast<ASTBasePawn*>(Hit.GetActor());
 		}
 	}
 	return nullptr;

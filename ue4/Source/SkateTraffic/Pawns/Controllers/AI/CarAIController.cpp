@@ -5,6 +5,8 @@
 #include "../../CarPawn.h"
 #include "../../../Components/CarPawnMovementComponent.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogCarAIController, All, All)
+
 void ACarAIController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
@@ -40,8 +42,14 @@ void ACarAIController::UpdateCurrentState(float DeltaTime)
 		return;
 	}
 
-	ForwardCar = CachedPawnOwner->CheckCarsInFront();
-	bool bForwardCarCheck = IsValid(ForwardCar);	
+	ASTBasePawn* ForwardPawn  = CachedPawnOwner->CheckCarsInFront();
+	bool bForwardCarCheck = IsValid(ForwardPawn);
+
+	ACarPawn* ForwardCar = Cast<ACarPawn>(ForwardPawn);
+	if (IsValid(ForwardCar) && bForwardCarCheck)
+	{
+		TrySetNewTargetVelocity(ForwardCar);
+	}
 	
 	if (bForwardCarCheck && FMath::IsNearlyZero(MovementComponent->GetCurrentVelocity().Size(), 5.f))
 	{
@@ -61,34 +69,36 @@ void ACarAIController::UpdateCurrentState(float DeltaTime)
 	{
 		MovementComponent->IncreaseSpeed(DeltaTime);
 	}
-	
-	if (bForwardCarCheck)
+}
+
+void ACarAIController::TrySetNewTargetVelocity(ACarPawn* ForwardCar)
+{
+	UCarPawnMovementComponent* MovementComponent = StaticCast<UCarPawnMovementComponent*>(CachedPawnOwner->GetCarPawnMovementComponent());
+	UCarPawnMovementComponent* ForwardCarMovementComponent = StaticCast<UCarPawnMovementComponent*>(ForwardCar->GetCarPawnMovementComponent());
+	if (!IsValid(ForwardCarMovementComponent) || !IsValid(MovementComponent))
 	{
-		UCarPawnMovementComponent* ForwardCarMovementComponent = StaticCast<UCarPawnMovementComponent*>(ForwardCar->GetCarPawnMovementComponent());
-		if (!IsValid(ForwardCarMovementComponent))
-		{
-			return;
-		}
+		return;
+	}
 		
-		if (FMath::IsNearlyEqual(ForwardCarMovementComponent->GetCurrentTargetSpeed(), MovementComponent->GetCurrentTargetSpeed()))
-		{
-			return;	
-		}
+	if (FMath::IsNearlyEqual(ForwardCarMovementComponent->GetCurrentTargetSpeed(), MovementComponent->GetCurrentTargetSpeed()))
+	{
+		return;	
+	}
 		
-		if (FMath::Abs(ForwardCarMovementComponent->GetCurrentTargetSpeed() - MovementComponent->GetCurrentTargetSpeed()) > 200.f)
+	if (FMath::Abs(ForwardCarMovementComponent->GetCurrentTargetSpeed() - MovementComponent->GetCurrentTargetSpeed()) > 200.f)
+	{
+		const int32 Direction = CachedPawnOwner->GetCurrentlyAvailableLane();
+		if (Direction != 0)
 		{
-			const int32 Direction = CachedPawnOwner->GetCurrentlyAvailableLane();
-			if (Direction != 0)
+			if (!MovementComponent->IsSwitchingLanes())
 			{
-				if (!MovementComponent->IsSwitchingLanes())
-				{
-					CachedPawnOwner->SwitchLane(Direction);
-				}
+				CachedPawnOwner->SwitchLane(Direction);
 			}
 		}
-		else
-		{
-			MovementComponent->SetCurrentTargetSpeed(ForwardCarMovementComponent->GetCurrentTargetSpeed());
-		}
+	}
+	else
+	{
+		MovementComponent->SetCurrentTargetSpeed(ForwardCarMovementComponent->GetCurrentTargetSpeed());
+		UE_LOG(LogCarAIController, Display, TEXT("CarName: %s | NewTargetSpeed: %f"), *CachedPawnOwner->GetName(), MovementComponent->GetCurrentTargetSpeed());
 	}
 }

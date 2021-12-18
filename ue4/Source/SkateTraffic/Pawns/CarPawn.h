@@ -26,7 +26,7 @@ public:
 	UBoxComponent* GetCollisionBox() const;
 		
 	UFUNCTION(BlueprintCallable)
-	ACarPawn* CheckCarsInFront();
+	ASTBasePawn* CheckCarsInFront();
 
 	UFUNCTION(BlueprintCallable)
 	bool IsNearbyLaneAvailable(int32 Direction);

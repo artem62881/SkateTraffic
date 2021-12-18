@@ -33,10 +33,19 @@ TSubclassOf<ABaseTileActor> ATilesSpawnActor::GetTileToSpawn(uint8 TileIndex) co
 	{
 		return nullptr;
 	}
+
+	if (!GetCurrentlySpawnedTiles().IsValidIndex(TileIndex))
+	{
+		return nullptr;
+	}
 	
 	uint8 RandNum = UKismetMathLibrary::RandomIntegerInRange(0, Num - 1);
-
-	if (GetCurrentlySpawnedTiles().IsValidIndex(TileIndex-1) && GetCurrentlySpawnedTiles()[TileIndex-1]->GetTileType() == ETileType::Crossroads)
+	if (!TilesToSpawn.IsValidIndex(RandNum))
+	{
+		RandNum = 0;
+	}
+	
+	if (GetCurrentlySpawnedTiles().IsValidIndex(TileIndex - 1) && GetCurrentlySpawnedTiles()[TileIndex-1]->GetTileType() == ETileType::Crossroads)
 	{
 		for (TSubclassOf<ABaseTileActor> TileToSpawn : TilesToSpawn)
 		{
@@ -47,6 +56,19 @@ TSubclassOf<ABaseTileActor> ATilesSpawnActor::GetTileToSpawn(uint8 TileIndex) co
 			}
 		}
 	}
+
+	if (TileIndex == 0)
+	{
+		for (TSubclassOf<ABaseTileActor> TileToSpawn : TilesToSpawn)
+		{
+			if (TileToSpawn.GetDefaultObject()->GetTileType() == ETileType::Crossroads)
+			{
+				RandNum = TilesToSpawn.IndexOfByKey(TileToSpawn);
+				break;
+			}
+		}
+	}
+	
 	return TilesToSpawn[RandNum];
 }
 

@@ -27,6 +27,8 @@ public:
 	FOnDeathSignature OnDeath;
 
 	void AddScore(uint8 ScoreToAdd);
+
+	//ASTPlayerState* GetPlayerState() const { return GetPla}
 	
 protected:
 	virtual void Tick(float DeltaSeconds) override;

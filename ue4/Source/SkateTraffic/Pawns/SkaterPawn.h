@@ -34,7 +34,10 @@ public:
 	bool IsPushingForward() const;
 	bool IsSlowingDown() const;
 
+	UFUNCTION(BlueprintCallable)
 	USkaterPawnMovementComponent* GetSkaterPawnMovementComponent() const;
+
+	UFUNCTION(BlueprintCallable)
 	UCapsuleComponent* GetCapsuleComponent() const;
 	
 protected:

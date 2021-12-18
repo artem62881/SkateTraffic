@@ -30,8 +30,6 @@ void USkaterPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTic
 	CurrentPushForwardMaxVelocity = PushForwardMaxVelocity * FMath::Clamp((MaxVelocity - GetCurrentVelocity().Size()) / MaxVelocity, 0.f, 1.f);
 	PushForwardUpdate(DeltaTime);
 	SlowDownUpdate(DeltaTime);
-
-	GEngine->AddOnScreenDebugMessage(1, -1.f, FColor::Green, FString::Printf(TEXT("Velocity: %f %f %f"), Velocity.X, Velocity.Y, Velocity.Z));
 }
 
 void USkaterPawnMovementComponent::PushForwardStart()
@@ -83,7 +81,7 @@ void USkaterPawnMovementComponent::SlowDownUpdate(float DeltaTime)
 
 	if (PawnOwner->IsSlowingDown())
 	{
-		if (Velocity.IsNearlyZero(10.f))
+		if (Velocity.IsNearlyZero(20.f))
 		{
 			SetIsStanding(true);
 			//UE_LOG(LogTemp, Error, TEXT("Stop"));
