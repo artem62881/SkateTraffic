@@ -14,13 +14,41 @@ ASkateTrafficGameMode::ASkateTrafficGameMode()
 	PlayerControllerClass = ASTPlayerController::StaticClass();
 }
 
-void ASkateTrafficGameMode::BeginPlay()
+void ASkateTrafficGameMode::StartPlay()
 {
-	Super::BeginPlay();
+	Super::StartPlay();
+	auto CachedPlayer = Cast<APlayerPawn>(DefaultPawnClass);
+	if (IsValid(CachedPlayer))
+	{
+		CachedPlayer->OnDeath.AddUObject(this, &ASkateTrafficGameMode::GameOver);
+	}
+	OnGameStateChanged.AddUObject(this, &ASkateTrafficGameMode::OnGameStateChangedEvent);
+	
+	CurrentLevelMusicActor = GetWorld()->SpawnActor<ASTMusicActor>(LevelMusic, FTransform::Identity);
 	SetGameState(ESTGameState::InProgress);
 }
 
+bool ASkateTrafficGameMode::SetPause(APlayerController* PC, FCanUnpause CanUnpauseDelegate)
+{
+	const auto PauseSet = Super::SetPause(PC, CanUnpauseDelegate);
+	if (PauseSet)
+	{
+		SetGameState(ESTGameState::Pause);
+	}
+	
+	return PauseSet;
+}
 
+bool ASkateTrafficGameMode::ClearPause()
+{
+	const auto PauseCleared = Super::ClearPause();
+	if (PauseCleared)
+	{
+		SetGameState(ESTGameState::InProgress);
+	}
+	
+	return PauseCleared;
+}
 
 void ASkateTrafficGameMode::GameOver()
 {

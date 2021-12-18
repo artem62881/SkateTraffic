@@ -16,4 +16,4 @@ enum class ESTGameState : uint8
 	GameOver
 };
 
-DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChangedSignature, ESTGameState);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnGameStateChangedSignature, ESTGameState)
