@@ -49,6 +49,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gravity");
 	float FloorCheckTraceLength = 120.f;
 	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gravity");
+	float RearFloorCheckOffset = 0.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gravity");
+	float FrontFloorCheckOffset = 0.f;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bRotateTowardsGradient = true;
 	

@@ -153,27 +153,41 @@ void USTBasePawnMovementComponent::SetPawnVelocity(FVector NewVelocity)
 }
 
 bool USTBasePawnMovementComponent::CheckFloor(float DeltaTime, FVector& HitNormal)
-{	
-	FHitResult Hit;
-	FVector StartLocation = UpdatedComponent->GetComponentLocation();
-	float LineTraceLength = FloorCheckTraceLength + GetGravityZ() * DeltaTime;
-	//FVector EndLocation = StartLocation + FloorCheckTraceLength * (-UpdatedComponent->GetUpVector());
-	FVector EndLocation = StartLocation + FloorCheckTraceLength * FVector::DownVector;
-	FCollisionQueryParams CollisionParams;
-	CollisionParams.AddIgnoredActor(GetOwner());
-
-	if (GetWorld()->LineTraceSingleByChannel(Hit, StartLocation, EndLocation, ECC_Pawn, CollisionParams))
+{
+	bool Result = false;
+	
+	FHitResult RearTraceHit;
+	FVector RearTraceStartLocation = UpdatedComponent->GetComponentLocation() - UpdatedComponent->GetForwardVector() * RearFloorCheckOffset;
+	FVector RearTraceEndLocation = RearTraceStartLocation + FloorCheckTraceLength * FVector::DownVector;
+	FCollisionQueryParams RearTraceCollisionParams;
+	RearTraceCollisionParams.AddIgnoredActor(GetOwner());
+	DrawDebugLine(GetWorld(), RearTraceStartLocation, RearTraceEndLocation, FColor::Green);
+	
+	if (GetWorld()->LineTraceSingleByChannel(RearTraceHit, RearTraceStartLocation, RearTraceEndLocation, ECC_Pawn, RearTraceCollisionParams))
 	{	
-		DrawDebugLine(GetWorld(), StartLocation, Hit.ImpactPoint, FColor::Green);
-		DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 20.f, 16, FColor::Red);
-		DrawDebugLine(GetWorld(), Hit.ImpactPoint, Hit.ImpactPoint + Hit.ImpactNormal * 100.f, FColor::Red, false, -1.f, (uint8)0U, 1.f);
-		HitNormal = Hit.ImpactNormal;
-		return true;
+		DrawDebugSphere(GetWorld(), RearTraceHit.ImpactPoint, 20.f, 16, FColor::Red);
+		HitNormal = RearTraceHit.ImpactNormal;
+		Result = true;
 	}
-	else
-	{
-		return false;
+
+	FHitResult FrontTraceHit;
+	FVector FrontTraceStartLocation = UpdatedComponent->GetComponentLocation() + UpdatedComponent->GetForwardVector() * FrontFloorCheckOffset;
+	FVector FrontTraceEndLocation = FrontTraceStartLocation + FloorCheckTraceLength * FVector::DownVector;
+	FCollisionQueryParams FrontTraceCollisionParams;
+	FrontTraceCollisionParams.AddIgnoredActor(GetOwner());
+	DrawDebugLine(GetWorld(), FrontTraceStartLocation, FrontTraceEndLocation, FColor::Green);
+	
+	if (GetWorld()->LineTraceSingleByChannel(FrontTraceHit, FrontTraceStartLocation, FrontTraceEndLocation, ECC_Pawn, FrontTraceCollisionParams))
+	{	
+		DrawDebugSphere(GetWorld(), FrontTraceHit.ImpactPoint, 20.f, 16, FColor::Red);
+		//HitNormal += FrontTraceHit.ImpactNormal;
+		HitNormal = FVector((HitNormal + FrontTraceHit.ImpactNormal)/2).GetSafeNormal();
+		//HitNormal /= 2.f;
+		Result = true;
 	}
+	 
+	DrawDebugLine(GetWorld(), UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentLocation() + HitNormal * 200.f, FColor::Red);
+	return Result;
 }
 
 void USTBasePawnMovementComponent::SwitchLaneStart(int32 Direction)
@@ -208,7 +222,7 @@ void USTBasePawnMovementComponent::SwitchLaneUpdate(float DeltaTime)
 	{
 		return;
 	}
-	if (FMath::IsNearlyEqual(PawnOwner->GetActorLocation().X, CurrentSwitchLaneInitialLocationX + CurrentSwitchLaneVector.X * 450.f, 20.f))
+	if (FMath::IsNearlyEqual(PawnOwner->GetActorLocation().X, CurrentSwitchLaneInitialLocationX + CurrentSwitchLaneVector.X * 450.f, 25.f))
 	{
 		SwitchLaneEnd();
 	}
