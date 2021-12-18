@@ -3,11 +3,25 @@
 
 #include "STPlayerController.h"
 #include "../SkaterPawn.h"
+#include "../../SkateTrafficGameMode.h"
 
 void ASTPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
 	CachedBasePawn = Cast<ASkaterPawn>(InPawn);
+}
+
+void ASTPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+	if (GetWorld())
+	{
+		const auto GameMode = Cast<ASkateTrafficGameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
+		{
+			GameMode->OnGameStateChanged.AddUObject(this, &ASTPlayerController::OnGameStateChanged);
+		}
+	}
 }
 
 void ASTPlayerController::SetupInputComponent()
@@ -18,6 +32,7 @@ void ASTPlayerController::SetupInputComponent()
 	InputComponent->BindAction("SlowDown", EInputEvent::IE_Released, this, &ASTPlayerController::SlowDownStop);
 	InputComponent->BindAction("SwitchLaneRight", EInputEvent::IE_Pressed, this, &ASTPlayerController::SwitchLaneRight);
 	InputComponent->BindAction("SwitchLaneLeft", EInputEvent::IE_Pressed, this, &ASTPlayerController::SwitchLaneLeft);
+	InputComponent->BindAction("PauseGame", EInputEvent::IE_Pressed, this, &ASTPlayerController::OnPauseGame);
 }
 
 void ASTPlayerController::PushForward()
@@ -57,5 +72,26 @@ void ASTPlayerController::SwitchLaneLeft()
 	if (CachedBasePawn.IsValid())
 	{
 		CachedBasePawn->SwitchLane(-1);
+	}
+}
+
+void ASTPlayerController::OnPauseGame()
+{
+	if (!GetWorld() || !GetWorld()->GetAuthGameMode()) return;
+
+	GetWorld()->GetAuthGameMode()->SetPause(this);	
+}
+
+void ASTPlayerController::OnGameStateChanged(ESTGameState State)
+{
+	if (State == ESTGameState::InProgress)
+	{
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+	}
+	else
+	{
+		SetInputMode(FInputModeUIOnly());
+		bShowMouseCursor = true;
 	}
 }

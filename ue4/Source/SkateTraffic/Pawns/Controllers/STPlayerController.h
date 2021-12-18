@@ -4,8 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "../STBasePawn.h"
-#include "GameFramework/Pawn.h"
+#include "SkateTraffic/SkateTrafficTypes.h"
 #include "STPlayerController.generated.h"
 
 /**
@@ -20,6 +19,8 @@ public:
 	virtual void SetPawn(APawn* InPawn) override;
 
 protected:
+	virtual void BeginPlay() override;
+	
 	virtual void SetupInputComponent() override;
 
 private:
@@ -28,8 +29,10 @@ private:
 	void SlowDownStop();
 	void SwitchLaneRight();
 	void SwitchLaneLeft();
+	void OnPauseGame();
 
 	TSoftObjectPtr<class ASkaterPawn> CachedBasePawn;
 
+	void OnGameStateChanged(ESTGameState State);
 
 };
