@@ -48,6 +48,9 @@ void APickableItem::BeginPlay()
 	{
 		OverlapCollapseSphere->OnComponentBeginOverlap.AddDynamic(this, &APickableItem::OnCollapseSphereBeginOverlap);
 	}
+
+	OnItemPicked.AddDynamic(this, &APickableItem::OnItemPickedEvent);
+	//OnDestroyed.AddDynamic(this, &APickableItem::OnItemPickedEvent);
 }
 
 
@@ -87,7 +90,7 @@ void APickableItem::OnAttractionSphereEndOverlap(UPrimitiveComponent* Overlapped
 	if (CachedPlayer == CurrentAttractionPawn && CurrentAttractionPawn.IsValid())
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("APickableItem::OnAttractionSphereEnd 2"));
-		DestroyItem();
+		DestroyItem(CachedPlayer);
 	}
 }
 
@@ -99,24 +102,37 @@ void APickableItem::OnCollapseSphereBeginOverlap(UPrimitiveComponent* Overlapped
 	APlayerPawn* CachedPlayer = StaticCast<APlayerPawn*>(OtherActor);
 	if (IsValid(CachedPlayer)/* && CurrentAttractionPawn.IsValid() || Cast<UCapsuleComponent>(OtherComp) == CachedPlayer->GetCapsuleComponent()*/)
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("APickableItem::OnCollapseSphereBegin 2"));
-		/*if (OnAddScore.IsBound())
-		{
-			OnAddScore.Execute(ItemScore);
-		}*/
-		CachedPlayer->AddScore(ItemScore);
-		DestroyItem();
+		DestroyItem(CachedPlayer);
 	}
 }
 
-void APickableItem::DestroyItem()
+void APickableItem::OnItemPickedEvent_Implementation()
 {
+	UE_LOG(LogTemp, Warning, TEXT("APickableItem::OnItemPickedEvent_Implementation()"));
+}
+
+void APickableItem::DestroyItem(APlayerPawn* InstigatorPawn)
+{
+	if (bIsDestroying)
+	{
+		return;
+	}
+	bIsDestroying = true;
+	
 	FVector FXLocation = GetActorLocation();
 	if (CurrentAttractionPawn.IsValid())
 	{
 		FXLocation = (GetActorLocation() + CurrentAttractionPawn->GetActorLocation()) / 2;
-	}
+	}	
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), ItemCollapseFX, FXLocation, GetActorRotation());
+	
+	if (OnItemPicked.IsBound())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("OnItemPicked.Broadcast()"));
+		OnItemPicked.Broadcast();
+	}
+
+	InstigatorPawn->AddScore(ItemScore);
 	Destroy();
 }
 

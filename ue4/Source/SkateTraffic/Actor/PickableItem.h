@@ -3,12 +3,12 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/Actor.h"
+#include "SkateTraffic/Pawns/PlayerPawn.h"
 #include "PickableItem.generated.h"
 
-//DECLARE_DYNAMIC_DELEGATE_OneParam(FOnAddScoreSignature, uint8, Score);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnItemPickedSignature);
 
 class USphereComponent;
 UCLASS()
@@ -23,13 +23,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	//FOnAddScoreSignature OnAddScore;
-	
+	UPROPERTY(BlueprintAssignable)
+	FOnItemPickedSignature OnItemPicked;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
-	//virtual void OnConstruction(const FTransform& Transform) override;
 		
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
 	class UStaticMeshComponent* ItemMesh;
@@ -67,10 +66,14 @@ protected:
 	UFUNCTION()
 	void OnCollapseSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnItemPickedEvent();
+	
 private:
 	FRotator ItemCurrentRotation = FRotator::ZeroRotator;
 
-	void DestroyItem();
+	void DestroyItem(APlayerPawn* Instigator);
+	bool bIsDestroying = false;
 	
 	void UpdateItemToPawnAttraction();
 	TWeakObjectPtr<APawn> CurrentAttractionPawn = nullptr;
