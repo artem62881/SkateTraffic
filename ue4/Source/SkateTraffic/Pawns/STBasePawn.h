@@ -18,17 +18,10 @@ public:
 
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
-	//float GetLaneXLocationPerNum(int8 Num) const;
-	//int8 GetCurrentLaneNum() const;
-
-	//bool IsSwitchingLanes() const;
-
+	
+	bool IsDebugDrawEnabled() const { return bIsDebugDrawEnabled; };
+	
 protected:	
-
-	//UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	//TArray<float> LanesXLocations = { -450.f, 0.f, 450.f };
-
-private:
-	//bool bIsSwitchingLanes = false;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	bool bIsDebugDrawEnabled = false;
 };

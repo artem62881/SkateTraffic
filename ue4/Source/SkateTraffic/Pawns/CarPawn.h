@@ -19,8 +19,8 @@ class SKATETRAFFIC_API ACarPawn : public ASTBasePawn
 	
 public:
 	ACarPawn();
-
-	UBehaviorTree* GetBehaviorTree() const;
+	
+	UFUNCTION(BlueprintCallable)
 	UCarPawnMovementComponent* GetCarPawnMovementComponent() const;
 
 	UBoxComponent* GetCollisionBox() const;
@@ -46,10 +46,7 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	class UCarPawnMovementComponent* CarPawnMovementComponent;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	class UBehaviorTree* BehaviorTree;
-
+	
 #if WITH_EDITORONLY_DATA
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UArrowComponent* ArrowComponent;
@@ -57,7 +54,4 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float FrontCarCheckDistance = 700.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	bool bIsDebugEnabled = false;
 };

@@ -45,7 +45,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (TitleProperty = "ObjectName"))
 	TArray<FObjectToSpawn> ObjectsToSpawn;
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (TitleProperty = "ObjectName"))
+    TArray<FObjectToSpawn> CarsToSpawn;
+		
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<float> LanesXLocations = { -450.f, 0.f, 450.f };
 

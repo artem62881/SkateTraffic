@@ -8,8 +8,11 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "../SkateTrafficTypes.h"
+#include "Async/IAsyncTask.h"
+#include "Kismet/GameplayStatics.h"
+#include "Particles/ParticleSystemComponent.h"
 #include "SkateTraffic/SkateTrafficGameMode.h"
-#include "SkateTraffic/Actor/PickableItem.h"
+#include "SkateTraffic/Components/SkaterPawnMovementComponent.h"
 
 APlayerPawn::APlayerPawn()
 {
@@ -20,11 +23,7 @@ APlayerPawn::APlayerPawn()
 	CameraComponent->SetupAttachment(SpringArmComponent);
 
 	DeathCapsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("DeathCapsule"));
-	DeathCapsule->SetCapsuleSize(GetCapsuleComponent()->GetScaledCapsuleRadius() * DeathCapsuleScale, GetCapsuleHalfHeight());
 	DeathCapsule->SetupAttachment(RootComponent);
-
-	//DestroyItemsSphere = CreateDefaultSubobject<USphereComponent>(TEXT("DestroyItemsCapsule"));
-	//DestroyItemsSphere->SetupAttachment(RootComponent);
 }
 
 void APlayerPawn::BeginPlay()
@@ -32,43 +31,113 @@ void APlayerPawn::BeginPlay()
 	Super::BeginPlay();
 	if (IsValid(DeathCapsule))
 	{
-		DeathCapsule->OnComponentHit.AddDynamic(this, &APlayerPawn::OnDeathCapsuleHitEvent);
+		DeathCapsule->OnComponentBeginOverlap.AddDynamic(this, &APlayerPawn::OnDeathCapsuleBeginOverlap);
 	}
-	
+		
 	PlayerState = Cast<ASTPlayerState>(GetPlayerState());
 	InitialLocation = GetActorLocation();
-	//if (IsValid(DestroyItemsSphere))
-	//{
-	//	DestroyItemsSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerPawn::OnDestroyItemsSphereEndOverlap);
-	//}
 	
-	if(bIsPursuerEnabled && IsValid(PursuerPawn) && !CachedPursuer.IsValid())
+	if(GetWorld() && bIsPursuerEnabled && IsValid(PursuerPawn) && !CachedPursuer.IsValid())
 	{
 		GetWorld()->GetTimerManager().SetTimer(PursuerInitTimer, this, &APlayerPawn::SpawnPursuer, PursuerSpawnTime);
 	}
 }
 
+void APlayerPawn::Jump()
+{
+	if (GetSkaterPawnMovementComponent()->IsFalling()) return;
+	
+	auto CurrentScore = ScoreToJump;
+	if(PlayerState.IsValid())
+	{
+		CurrentScore = PlayerState->GetCurrentScore();
+	}
+
+	if(CurrentScore >= ScoreToJump)
+	{
+		if (PlayerState.IsValid())
+		{
+			PlayerState->AddScore(-ScoreToJump);
+		}
+		
+		if (GetWorld() && SuccesfulJumpEmitter)
+		{
+			//FVector SpawnLocation = GetActorLocation() - GetActorUpVector() * CapsuleComponent->GetScaledCapsuleHalfHeight();
+			//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SuccesfulJumpEmitter, SpawnLocation);
+			UGameplayStatics::SpawnEmitterAttached(SuccesfulJumpEmitter, SkateMeshComponent);
+			if (SuccesfulJumpSound)
+			{
+				UGameplayStatics::SpawnSoundAttached(SuccesfulJumpSound, SkateMeshComponent);
+			}
+		}
+		GetSkaterPawnMovementComponent()->Jump(EJumpType::Succesful);
+	}
+	else
+	{
+		if (GetWorld() && FailedJumpEmitter)
+		{
+			//FVector SpawnLocation = GetActorLocation() - GetActorUpVector() * CapsuleComponent->GetScaledCapsuleHalfHeight();
+			//UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), FailedJumpEmitter, SpawnLocation);
+			UGameplayStatics::SpawnEmitterAttached(FailedJumpEmitter, SkateMeshComponent);
+			if (FailedJumpSound)
+			{
+				UGameplayStatics::SpawnSoundAttached(FailedJumpSound, SkateMeshComponent);
+			}
+		}
+		GetSkaterPawnMovementComponent()->Jump(EJumpType::Failed);
+	}
+}
+
 void APlayerPawn::AddScore(uint8 ScoreToAdd)
 {
-	PlayerState->AddScore(ScoreToAdd);
+	if (PlayerState.IsValid())
+	{
+		PlayerState->AddScore(ScoreToAdd);
+	}
 }
 
 void APlayerPawn::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	PlayerState->SetCurrentDistance((GetActorLocation() - InitialLocation).Size());
+	if (PlayerState.IsValid())
+	{
+		PlayerState->SetCurrentDistance((GetActorLocation() - InitialLocation).Size());
+	}
 }
 
-void APlayerPawn::OnDeathCapsuleHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor,
+/*void APlayerPawn::OnDeathCapsuleHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor,
                                          UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
 {
+	UE_LOG(LogTemp, Error, TEXT("APlayerPawn::OnDeathCapsuleHitEvent 0"));
 	ACarPawn* Car = Cast<ACarPawn>(OtherActor);
 	if (IsValid(Car))
 	{
-		if (OnDeath.IsBound())
+		UE_LOG(LogTemp, Error, TEXT("APlayerPawn::OnDeathCapsuleHitEvent 1"));
+		//if (OnDeath.IsBound())
+		//{
+		//	OnDeath.Broadcast();
+		//}
+		auto GameMode = Cast<ASkateTrafficGameMode>(GetWorld()->GetAuthGameMode());
+		if (IsValid(GameMode))
 		{
-			OnDeath.Broadcast();
+			GameMode->OnGameStateChanged.Broadcast(ESTGameState::GameOver);
 		}
+		this->Destroy();
+	}
+}*/
+
+void APlayerPawn::OnDeathCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+   UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	UE_LOG(LogTemp, Error, TEXT("APlayerPawn::OnDeathCapsuleBeginOverlap 0"));
+	ACarPawn* Car = Cast<ACarPawn>(OtherActor);
+	if (IsValid(Car))
+	{
+		UE_LOG(LogTemp, Error, TEXT("APlayerPawn::OnDeathCapsuleBeginOverlap 1"));
+		//if (OnDeath.IsBound())
+		//{
+		//	OnDeath.Broadcast();
+		//}
 		auto GameMode = Cast<ASkateTrafficGameMode>(GetWorld()->GetAuthGameMode());
 		if (IsValid(GameMode))
 		{

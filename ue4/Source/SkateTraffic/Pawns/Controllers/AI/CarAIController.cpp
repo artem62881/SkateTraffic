@@ -14,7 +14,6 @@ void ACarAIController::SetPawn(APawn* InPawn)
 	{
 		checkf(InPawn->IsA<ACarPawn>(), TEXT("void ACarAIController::SetPawn(APawn* InPawn) ACarAIController can posses only ACarPawn"));
 		CachedPawnOwner = StaticCast<ACarPawn*>(InPawn);
-		RunBehaviorTree(CachedPawnOwner->GetBehaviorTree());
 	}
 	else
 	{
@@ -43,15 +42,15 @@ void ACarAIController::UpdateCurrentState(float DeltaTime)
 	}
 
 	ASTBasePawn* ForwardPawn  = CachedPawnOwner->CheckCarsInFront();
-	bool bForwardCarCheck = IsValid(ForwardPawn);
+	bool bForwardCheck = IsValid(ForwardPawn);
 
 	ACarPawn* ForwardCar = Cast<ACarPawn>(ForwardPawn);
-	if (IsValid(ForwardCar) && bForwardCarCheck)
+	if (IsValid(ForwardCar)/* && bForwardCheck*/)
 	{
 		TrySetNewTargetVelocity(ForwardCar);
 	}
 	
-	if (bForwardCarCheck && FMath::IsNearlyZero(MovementComponent->GetCurrentVelocity().Size(), 5.f))
+	if (bForwardCheck && FMath::IsNearlyZero(MovementComponent->GetCurrentVelocity().Size(), 5.f))
 	{
 		MovementComponent->SetIsStanding(true);
 		return;
@@ -61,7 +60,7 @@ void ACarAIController::UpdateCurrentState(float DeltaTime)
 		MovementComponent->SetIsStanding(false);
 	}
 	
-	if (MovementComponent->GetCurrentVelocity().Size() > MovementComponent->GetCurrentTargetSpeed() || bForwardCarCheck)
+	if (MovementComponent->GetCurrentVelocity().Size() > MovementComponent->GetCurrentTargetSpeed() || bForwardCheck)
 	{
 		MovementComponent->DecreaseSpeed(DeltaTime);
 	}
@@ -99,6 +98,6 @@ void ACarAIController::TrySetNewTargetVelocity(ACarPawn* ForwardCar)
 	else
 	{
 		MovementComponent->SetCurrentTargetSpeed(ForwardCarMovementComponent->GetCurrentTargetSpeed());
-		UE_LOG(LogCarAIController, Display, TEXT("CarName: %s | NewTargetSpeed: %f"), *CachedPawnOwner->GetName(), MovementComponent->GetCurrentTargetSpeed());
+		//UE_LOG(LogCarAIController, Display, TEXT("CarName: %s | NewTargetSpeed: %f"), *CachedPawnOwner->GetName(), MovementComponent->GetCurrentTargetSpeed());
 	}
 }

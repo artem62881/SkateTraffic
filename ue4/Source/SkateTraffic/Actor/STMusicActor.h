@@ -34,6 +34,7 @@ private:
 
 	UFUNCTION()
 	void PlayNextSong(AActor* Actor, EEndPlayReason::Type EndPlayReason);
+	
 	AAmbientSound* SoundActor;
 	USoundWave* CurrentSong;
 	FTimerHandle SongTimer;

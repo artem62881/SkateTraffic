@@ -3,14 +3,18 @@
 
 #include "STBasePawnMovementComponent.h"
 #include "DrawDebugHelpers.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void USTBasePawnMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	PawnOwner = StaticCast<ASTBasePawn*>(GetPawnOwner());
+	CachedPawnOwner = StaticCast<ASTBasePawn*>(GetPawnOwner());
 	OnGroundHit.AddDynamic(this, &USTBasePawnMovementComponent::OnGroundHitEvent);
 	CachedPawnInitialLocation = UpdatedComponent->GetComponentLocation();
+	SetPawnVelocity(InitialVelocity * CachedPawnOwner->GetActorForwardVector());
+	if (InitialLaneNum != 1)
+	{
+		SetCurrentLaneNum(InitialLaneNum);
+	}
 }
 
 void USTBasePawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -108,11 +112,11 @@ void USTBasePawnMovementComponent::OnGroundHitEvent(FVector& HitNormal)
 
 void USTBasePawnMovementComponent::UpdatePawnAcceleration(float DeltaTime, FVector FloorNormal)
 {
-	FVector GravityAcceleration = GetGravityZ() * FVector::UpVector;
+	FVector GravityAcceleration = GetGravityZ() * GravityRatio * FVector::UpVector;
 	FVector FloorReactionAcceleration = FVector::ZeroVector;
 	if (!IsFalling())
 	{
-		FloorReactionAcceleration = FloorNormal * -GetGravityZ() * FloorNormal.Z;
+		FloorReactionAcceleration = FloorNormal * -GetGravityZ()  * GravityRatio * FloorNormal.Z;
 		SurfaceFriction = FMath::Clamp((MaxVelocity - Velocity.Size()) / MaxVelocity, 0.f, 1.f);
 	}
 	else
@@ -142,10 +146,10 @@ void USTBasePawnMovementComponent::RotatePawnTowardsFloorGradient(FVector FloorN
 	UpdatedComponent->SetWorldRotation(Rot);
 }
 
-void USTBasePawnMovementComponent::SetPawnInitialVelocity(FVector InVelocity)
+/*void USTBasePawnMovementComponent::SetPawnInitialVelocity(FVector InVelocity)
 {
 	SetPawnVelocity(InVelocity);
-}
+}*/
 
 void USTBasePawnMovementComponent::SetPawnVelocity(FVector NewVelocity)
 {
@@ -161,11 +165,12 @@ bool USTBasePawnMovementComponent::CheckFloor(float DeltaTime, FVector& HitNorma
 	FVector RearTraceEndLocation = RearTraceStartLocation + FloorCheckTraceLength * FVector::DownVector;
 	FCollisionQueryParams RearTraceCollisionParams;
 	RearTraceCollisionParams.AddIgnoredActor(GetOwner());
-	DrawDebugLine(GetWorld(), RearTraceStartLocation, RearTraceEndLocation, FColor::Green);
+
+	if (CachedPawnOwner->IsDebugDrawEnabled()) DrawDebugLine(GetWorld(), RearTraceStartLocation, RearTraceEndLocation, FColor::Green);
 	
 	if (GetWorld()->LineTraceSingleByChannel(RearTraceHit, RearTraceStartLocation, RearTraceEndLocation, ECC_Pawn, RearTraceCollisionParams))
 	{	
-		DrawDebugSphere(GetWorld(), RearTraceHit.ImpactPoint, 20.f, 16, FColor::Red);
+		if (CachedPawnOwner->IsDebugDrawEnabled()) DrawDebugSphere(GetWorld(), RearTraceHit.ImpactPoint, 20.f, 16, FColor::Red);
 		HitNormal = RearTraceHit.ImpactNormal;
 		Result = true;
 	}
@@ -175,18 +180,18 @@ bool USTBasePawnMovementComponent::CheckFloor(float DeltaTime, FVector& HitNorma
 	FVector FrontTraceEndLocation = FrontTraceStartLocation + FloorCheckTraceLength * FVector::DownVector;
 	FCollisionQueryParams FrontTraceCollisionParams;
 	FrontTraceCollisionParams.AddIgnoredActor(GetOwner());
-	DrawDebugLine(GetWorld(), FrontTraceStartLocation, FrontTraceEndLocation, FColor::Green);
+	if (CachedPawnOwner->IsDebugDrawEnabled()) DrawDebugLine(GetWorld(), FrontTraceStartLocation, FrontTraceEndLocation, FColor::Green);
 	
 	if (GetWorld()->LineTraceSingleByChannel(FrontTraceHit, FrontTraceStartLocation, FrontTraceEndLocation, ECC_Pawn, FrontTraceCollisionParams))
 	{	
-		DrawDebugSphere(GetWorld(), FrontTraceHit.ImpactPoint, 20.f, 16, FColor::Red);
+		if (CachedPawnOwner->IsDebugDrawEnabled()) DrawDebugSphere(GetWorld(), FrontTraceHit.ImpactPoint, 20.f, 16, FColor::Red);
 		//HitNormal += FrontTraceHit.ImpactNormal;
-		HitNormal = FVector((HitNormal + FrontTraceHit.ImpactNormal)/2).GetSafeNormal();
+		HitNormal = FVector(HitNormal + FrontTraceHit.ImpactNormal).GetSafeNormal();
 		//HitNormal /= 2.f;
 		Result = true;
 	}
 	 
-	DrawDebugLine(GetWorld(), UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentLocation() + HitNormal * 200.f, FColor::Red);
+	if (CachedPawnOwner->IsDebugDrawEnabled()) DrawDebugLine(GetWorld(), UpdatedComponent->GetComponentLocation(), UpdatedComponent->GetComponentLocation() + HitNormal * 200.f, FColor::Red);
 	return Result;
 }
 
@@ -202,12 +207,14 @@ void USTBasePawnMovementComponent::SwitchLaneStart(int32 Direction)
 	{
 		return;
 	}
-
+	
 	CurrentSwitchLaneInitialLocationX = GetLaneXLocationPerNum(GetCurrentLaneNum());
-	CurrentSwitchLaneVector = UpdatedComponent->GetRightVector() * (NewLaneNum - GetCurrentLaneNum());
-	SetCurrentLaneNum(NewLaneNum);
+	CurrentSwitchLaneVector = UpdatedComponent->GetRightVector() * Direction;
+	
 	CurrentSwitchLaneVelocity = GetCurrentVelocity().Size() * SwitchLaneVelocityRatio;
 	FMath::Clamp(CurrentSwitchLaneVelocity, MinSwitchLaneSpeed, MaxSwitchLaneSpeed);
+	
+	SetCurrentLaneNum(NewLaneNum);
 	bIsSwitchingLanes = true;
 }
 

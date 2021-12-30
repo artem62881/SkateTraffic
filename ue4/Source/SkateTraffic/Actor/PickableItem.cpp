@@ -13,8 +13,7 @@ APickableItem::APickableItem()
 	PrimaryActorTick.bCanEverTick = true;
 	
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
-
-
+	
 	OverlapCollapseSphere = CreateDefaultSubobject<USphereComponent>(TEXT("OverlapCollapseSphere"));
 	OverlapCollapseSphere->SetupAttachment(RootComponent);
 	OverlapCollapseSphere->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
@@ -49,6 +48,7 @@ void APickableItem::BeginPlay()
 		OverlapCollapseSphere->OnComponentBeginOverlap.AddDynamic(this, &APickableItem::OnCollapseSphereBeginOverlap);
 	}
 
+	ItemCurrentRotation += FRotator(0.f, FMath::RandRange(0.f, 359.f), ItemTilt);
 	OnItemPicked.AddDynamic(this, &APickableItem::OnItemPickedEvent);
 	//OnDestroyed.AddDynamic(this, &APickableItem::OnItemPickedEvent);
 }
@@ -66,7 +66,7 @@ void APickableItem::Tick(float DeltaTime)
 
 	FRotator DeltaRot = FRotator(0.f, MeshRotationRate * DeltaTime, 0.f);
 	ItemCurrentRotation += DeltaRot;
-	ItemMesh->SetRelativeRotation(ItemCurrentRotation);
+	ItemMesh->SetWorldRotation(ItemCurrentRotation);
 
 	UpdateItemToPawnAttraction();
 }
@@ -108,7 +108,7 @@ void APickableItem::OnCollapseSphereBeginOverlap(UPrimitiveComponent* Overlapped
 
 void APickableItem::OnItemPickedEvent_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("APickableItem::OnItemPickedEvent_Implementation()"));
+	//UE_LOG(LogTemp, Warning, TEXT("APickableItem::OnItemPickedEvent_Implementation()"));
 }
 
 void APickableItem::DestroyItem(APlayerPawn* InstigatorPawn)
@@ -128,7 +128,7 @@ void APickableItem::DestroyItem(APlayerPawn* InstigatorPawn)
 	
 	if (OnItemPicked.IsBound())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("OnItemPicked.Broadcast()"));
+		//UE_LOG(LogTemp, Warning, TEXT("OnItemPicked.Broadcast()"));
 		OnItemPicked.Broadcast();
 	}
 

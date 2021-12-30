@@ -13,6 +13,9 @@ class ASkateTrafficGameMode : public AGameModeBase
 public:
 	ASkateTrafficGameMode();
 
+	UFUNCTION(BlueprintNativeEvent)
+	void OnGameModeInitialized(AGameModeBase* GameMode);
+	
 	virtual void StartPlay() override;
 	
 	FOnGameStateChangedSignature OnGameStateChanged;

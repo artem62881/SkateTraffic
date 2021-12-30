@@ -104,7 +104,6 @@ void UObjectsSpawnComponent::SpawnObjects(FObjectToSpawn ObjectToSpawn, ABaseTil
 void UObjectsSpawnComponent::SpawnCars(FObjectToSpawn ObjectToSpawn, ABaseTileActor* TileToSpawnIn)
 {
 	FVector TileLocation = TileToSpawnIn->GetActorLocation();
-	//FRotator TileRotation = TileToSpawnIn->GetActorRotation();
 	float TileLength = TileToSpawnIn->GetTileLength();
 	float TileAngle = TileToSpawnIn->GetTileAngle();
 	uint8 ObjectsAmount = TileLength / ObjectToSpawn.SpawnPeriodicity;
@@ -121,7 +120,6 @@ void UObjectsSpawnComponent::SpawnCars(FObjectToSpawn ObjectToSpawn, ABaseTileAc
 		
 		FVector SpawnLocation = TileLocation + FVector(LocationX, -Distance * UKismetMathLibrary::DegCos(TileAngle), -Distance * UKismetMathLibrary::DegSin(TileAngle) + ObjectToSpawn.HeightOffset);
 		FRotator SpawnRotation = FRotator(0.f, -90.f, 0.f);
-		//FRotator SpawnRotation = TileRotation;
 		
 		FVector CarBoxExtent = FVector(1.f, 1.f, 1.f);
 		ACarPawn* DefaultCar = StaticCast<ACarPawn*>(ObjectToSpawn.ObjectType->GetDefaultObject());
@@ -161,7 +159,7 @@ void UObjectsSpawnComponent::OnTileSpawned(ABaseTileActor* SpawnedTile)
 		//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("1. Object type ready to spawn: %s"), *Object.ObjectType->GetName());
 		if (Object.ObjectType == nullptr)
 		{
-			return;
+			continue;
 		}
 
 		if (Object.ObjectType->IsChildOf<APickableItem>())
@@ -169,11 +167,19 @@ void UObjectsSpawnComponent::OnTileSpawned(ABaseTileActor* SpawnedTile)
 			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("2. Object type ready to spawn: %s"), *Object.ObjectType->GetName());
 			SpawnObjects(Object, SpawnedTile);
 		}
+	}
 
-		if (Object.ObjectType->IsChildOf<ACarPawn>() && SpawnedTile->GetTileType() != ETileType::Crossroads)
+	for (FObjectToSpawn Car : CarsToSpawn)
+	{
+		if (Car.ObjectType == nullptr)
+		{
+			continue;
+		}
+		
+		if (Car.ObjectType->IsChildOf<ACarPawn>() && SpawnedTile->GetTileType() != ETileType::Crossroads)
 		{
 			//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("2. Object type ready to spawn: %s"), *Object.ObjectType->GetName());
-			SpawnCars(Object, SpawnedTile);
+			SpawnCars(Car, SpawnedTile);
 		}
 	}
 	/*for (uint8 i = 0; i < CurrentlySpawnedObjects.Num(); ++i)
@@ -187,7 +193,7 @@ void UObjectsSpawnComponent::OnTileSpawned(ABaseTileActor* SpawnedTile)
 			UE_LOG(LogObjectsSpawnComponent, Display, TEXT("Objects array %i: NULL"), i);
 		}
 	}*/
-	UE_LOG(LogObjectsSpawnComponent, Display, TEXT("----------------------------------------------"));
+	//UE_LOG(LogObjectsSpawnComponent, Display, TEXT("----------------------------------------------"));
 }
 
 void UObjectsSpawnComponent::OnObjectDestroyed(AActor* DestroyedActor)

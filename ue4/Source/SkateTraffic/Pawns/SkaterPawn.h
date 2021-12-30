@@ -9,6 +9,7 @@
 /**
  * 
  */
+class USkeletalMeshComponent;
 class USkaterPawnMovementComponent;
 class UCapsuleComponent;
 class UAnimMontage;
@@ -40,6 +41,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UCapsuleComponent* GetCapsuleComponent() const;
 	
+	UFUNCTION(BlueprintCallable)
+	USkeletalMeshComponent* GetCharacterMesh() const;
+	
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UCapsuleComponent* CapsuleComponent;
@@ -48,7 +52,7 @@ protected:
 	USkaterPawnMovementComponent* SkaterPawnMovementComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	class USkeletalMeshComponent* CharacterMeshComponent;
+	USkeletalMeshComponent* CharacterMeshComponent;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	class UStaticMeshComponent* SkateMeshComponent;

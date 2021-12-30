@@ -42,7 +42,7 @@ void ASTMusicActor::PlayNextSong(AActor* Actor, EEndPlayReason::Type EndPlayReas
 	int8 RandNum = FMath::RandRange(0, MusicPlaylist.Num() - 1);
 	if (MusicPlaylist[RandNum] == CurrentSong)
 	{
-		RandNum += 1 ? MusicPlaylist.IsValidIndex(RandNum+1) : RandNum =-1;
+		 MusicPlaylist.IsValidIndex(RandNum+1) ? RandNum += 1 : RandNum -= 1;
 	}
 
 	if (!MusicPlaylist.IsValidIndex(RandNum))
@@ -53,6 +53,7 @@ void ASTMusicActor::PlayNextSong(AActor* Actor, EEndPlayReason::Type EndPlayReas
 	auto NextSong = StaticCast<USoundWave*>(MusicPlaylist[RandNum]);
 	if (IsValid(NextSong))
 	{
+		CurrentSong = NextSong;
 		SoundActor->GetAudioComponent()->SetSound(NextSong);
 		SoundActor->Play();
 	}

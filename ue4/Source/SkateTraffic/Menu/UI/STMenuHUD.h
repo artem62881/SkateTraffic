@@ -19,4 +19,10 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TSubclassOf<UUserWidget> MenuWidgetClass;
+
+	UPROPERTY(BlueprintReadWrite)
+	UUserWidget* MenuWidget;
+
+private:
+
 };

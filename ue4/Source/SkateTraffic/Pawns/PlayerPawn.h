@@ -7,6 +7,7 @@
 #include "SkaterPawn.h"
 #include "PlayerState/STPlayerState.h"
 #include "SkateTraffic/SkateTrafficTypes.h"
+#include "Sound/SoundCue.h"
 #include "PlayerPawn.generated.h"
 
 /**
@@ -24,11 +25,11 @@ public:
 
 	virtual void BeginPlay() override;
 
-	FOnDeathSignature OnDeath;
+	void Jump();
 
 	void AddScore(uint8 ScoreToAdd);
 
-	//ASTPlayerState* GetPlayerState() const { return GetPla}
+	//TWeakObjectPtr<ASTPlayerState> GetPlayerState() const { return PlayerState; };
 	
 protected:
 	virtual void Tick(float DeltaSeconds) override;
@@ -57,13 +58,25 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (UIMin = 0.f, ClampMin = 0.f))
 	float PursuerInitialDistance = 5000.f;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UParticleSystem* SuccesfulJumpEmitter;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UParticleSystem* FailedJumpEmitter;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* SuccesfulJumpSound;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* FailedJumpSound;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta = (UIMin = 0, ClampMin = 0))
+	int32 ScoreToJump = 10;
+	
 private:
 	UFUNCTION()
-	void OnDeathCapsuleHitEvent(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
-
-	//UFUNCTION()
-	//void OnDestroyItemsSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-	
+	void OnDeathCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+		
 	FVector InitialLocation = FVector::ZeroVector;
 
 	TWeakObjectPtr<ASTPlayerState> PlayerState;

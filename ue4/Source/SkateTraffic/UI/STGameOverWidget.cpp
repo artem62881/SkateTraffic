@@ -25,10 +25,10 @@ int32 USTGameOverWidget::GetScore() const
 void USTGameOverWidget::NativeOnInitialized()
 {
 	Super::NativeOnInitialized();
-	UE_LOG(LogTemp, Error, TEXT("USTGameOverWidget::NativeOnInitialized() 0"));
+	//UE_LOG(LogTemp, Error, TEXT("USTGameOverWidget::NativeOnInitialized() 0"));
 	if (ResetLevelButton)
 	{
-		UE_LOG(LogTemp, Error, TEXT("USTGameOverWidget::NativeOnInitialized() 1"));
+		//UE_LOG(LogTemp, Error, TEXT("USTGameOverWidget::NativeOnInitialized() 1"));
 		ResetLevelButton->OnClicked.AddDynamic(this, &USTGameOverWidget::OnResetLevel);
 	}
 }
@@ -47,7 +47,7 @@ void USTGameOverWidget::OnResetLevel()
 {
 	if (!GetWorld() || !GetWorld()->GetAuthGameMode()) return;
 
-	UE_LOG(LogTemp, Error, TEXT("USTGameOverWidget::OnResetLevel"));
+	//UE_LOG(LogTemp, Error, TEXT("USTGameOverWidget::OnResetLevel"));
 	const FString CurrentLevelName = UGameplayStatics::GetCurrentLevelName(this);
 	UGameplayStatics::OpenLevel(this, FName(CurrentLevelName));
 }

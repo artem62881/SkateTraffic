@@ -80,13 +80,14 @@ void ATilesSpawnActor::BeginPlay()
 	CurrentlySpawnedTiles.Reserve(SpawnedTilesMaxNum);
 	CurrentlySpawnedTiles.SetNumZeroed(SpawnedTilesMaxNum);
 	SpawnTiles();
-	
+
+#if WITH_EDITORONLY_DATA
 	if (IsValid(PreviewMesh) && IsValid(PreviewArrow))
 	{
 		PreviewArrow->DestroyComponent();
 		PreviewMesh->DestroyComponent();
 	}
-	
+#endif
 }
 
 void ATilesSpawnActor::Tick(float DeltaTime)

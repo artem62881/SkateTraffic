@@ -45,12 +45,13 @@ private:
 	UPROPERTY()
 	UUserWidget* CurrentStateWidget = nullptr;
 
+	UPROPERTY()
 	UUserWidget* HintsWidget = nullptr;
 	
 	void OnGameStateChanged(ESTGameState State);
 
 	void DrawHints();
-	void RemoveHints();
+	//void RemoveHints();
 	
 	FTimerHandle HintsTimer;
 };

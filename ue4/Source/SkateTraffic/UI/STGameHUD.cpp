@@ -53,8 +53,8 @@ void ASTGameHUD::OnGameStateChanged(ESTGameState State)
 		CurrentStateWidget = GameStateWidgets[State];
 		CurrentStateWidget->SetVisibility(ESlateVisibility::Visible);
 	}
-	UE_LOG(LogSTGameHUD, Display, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));
-	UE_LOG(LogTemp, Error, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));
+	//UE_LOG(LogSTGameHUD, Display, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));
+	//UE_LOG(LogTemp, Error, TEXT("Match state changed: %s"), *UEnum::GetValueAsString(State));
 }
 
 void ASTGameHUD::DrawHints()
@@ -63,14 +63,14 @@ void ASTGameHUD::DrawHints()
 	if (HintsWidget)
 	{
 		HintsWidget->AddToViewport();
-		if (GetWorld())
-		{
-			GetWorld()->GetTimerManager().SetTimer(HintsTimer, this, &ASTGameHUD::RemoveHints, DrawHintsTime);
-		}
+		//if (GetWorld())
+		//{
+		//	GetWorld()->GetTimerManager().SetTimer(HintsTimer, this, &ASTGameHUD::RemoveHints, DrawHintsTime);
+		//}
 	}
 }
 
-void ASTGameHUD::RemoveHints()
+/*void ASTGameHUD::RemoveHints()
 {
 	HintsWidget->SetVisibility(ESlateVisibility::Hidden);
-}
+}*/

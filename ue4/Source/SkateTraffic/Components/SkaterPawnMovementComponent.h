@@ -11,6 +11,13 @@
 /**
  * 
  */
+UENUM(BlueprintType)
+enum class EJumpType : uint8
+{
+	Failed = 0,
+	Succesful
+};
+
 UCLASS()
 class SKATETRAFFIC_API USkaterPawnMovementComponent : public USTBasePawnMovementComponent
 {
@@ -25,10 +32,9 @@ public:
 
 	virtual void SwitchLaneStart(int32 Direction) override;
 
+	void Jump(EJumpType JumpType);
+
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
-	float InitialVelocity = 0.f;
-	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	float PushForwardMaxVelocity = 1200.f;
 
@@ -38,6 +44,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float SlowDownVelocity = 300.0f;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float SuccesfulJumpVelocity = 1000.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	float FailedJumpVelocity = 200.0f;
+	
 private:
 	class ASkaterPawn* PawnOwner = nullptr;
 

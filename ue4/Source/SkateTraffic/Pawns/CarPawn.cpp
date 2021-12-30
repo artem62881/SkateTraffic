@@ -25,13 +25,6 @@ ACarPawn::ACarPawn()
 	ArrowComponent = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
 	ArrowComponent->SetupAttachment(RootComponent);
 #endif
-
-	CarPawnMovementComponent->SetInitialValues();
-}
-
-UBehaviorTree* ACarPawn::GetBehaviorTree() const
-{
-	return BehaviorTree;
 }
 
 UCarPawnMovementComponent* ACarPawn::GetCarPawnMovementComponent() const
@@ -70,7 +63,7 @@ ASTBasePawn* ACarPawn::CheckCarsInFront()
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.AddUnique(this);
 	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None;
-	bIsDebugEnabled ? DrawDebugType = EDrawDebugTrace::ForOneFrame : DrawDebugType = EDrawDebugTrace::None;
+	IsDebugDrawEnabled() ? DrawDebugType = EDrawDebugTrace::ForOneFrame : DrawDebugType = EDrawDebugTrace::None;
 	FHitResult Hit;
 	
 	if (UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEnd, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, DrawDebugType, Hit, true))
@@ -101,7 +94,7 @@ bool ACarPawn::IsNearbyLaneAvailable(int32 Direction)
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.AddUnique(this);
 	EDrawDebugTrace::Type DrawDebugType = EDrawDebugTrace::None;
-	bIsDebugEnabled ? DrawDebugType = EDrawDebugTrace::ForOneFrame : DrawDebugType = EDrawDebugTrace::None;
+	IsDebugDrawEnabled() ? DrawDebugType = EDrawDebugTrace::ForOneFrame : DrawDebugType = EDrawDebugTrace::None;
 	FHitResult Hit;
 	
 	if (!UKismetSystemLibrary::BoxTraceSingle(GetWorld(), TraceStart, TraceEndFirst, BoxHalfSize, Rotation, TraceType, true, ActorsToIgnore, DrawDebugType, Hit, true))

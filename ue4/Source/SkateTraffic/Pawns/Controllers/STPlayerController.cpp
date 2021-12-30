@@ -2,13 +2,13 @@
 
 
 #include "STPlayerController.h"
-#include "../SkaterPawn.h"
+#include "../PlayerPawn.h"
 #include "../../SkateTrafficGameMode.h"
 
 void ASTPlayerController::SetPawn(APawn* InPawn)
 {
 	Super::SetPawn(InPawn);
-	CachedBasePawn = Cast<ASkaterPawn>(InPawn);
+	CachedBasePawn = Cast<APlayerPawn>(InPawn);
 }
 
 void ASTPlayerController::BeginPlay()
@@ -32,6 +32,7 @@ void ASTPlayerController::SetupInputComponent()
 	InputComponent->BindAction("SlowDown", EInputEvent::IE_Released, this, &ASTPlayerController::SlowDownStop);
 	InputComponent->BindAction("SwitchLaneRight", EInputEvent::IE_Pressed, this, &ASTPlayerController::SwitchLaneRight);
 	InputComponent->BindAction("SwitchLaneLeft", EInputEvent::IE_Pressed, this, &ASTPlayerController::SwitchLaneLeft);
+	InputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ASTPlayerController::Jump);
 	InputComponent->BindAction("PauseGame", EInputEvent::IE_Pressed, this, &ASTPlayerController::OnPauseGame);
 }
 
@@ -72,6 +73,14 @@ void ASTPlayerController::SwitchLaneLeft()
 	if (CachedBasePawn.IsValid())
 	{
 		CachedBasePawn->SwitchLane(-1);
+	}
+}
+
+void ASTPlayerController::Jump()
+{
+	if (CachedBasePawn.IsValid())
+	{
+		CachedBasePawn->Jump();
 	}
 }
 

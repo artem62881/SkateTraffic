@@ -8,6 +8,8 @@
 
 ASkateTrafficGameMode::ASkateTrafficGameMode()
 {
+	FGameModeEvents::GameModeInitializedEvent.AddUObject(this, &ASkateTrafficGameMode::OnGameModeInitialized);
+	
 	DefaultPawnClass = APlayerPawn::StaticClass();
 	HUDClass = ASTGameHUD::StaticClass();
 	PlayerStateClass = ASTPlayerState::StaticClass();
@@ -17,11 +19,11 @@ ASkateTrafficGameMode::ASkateTrafficGameMode()
 void ASkateTrafficGameMode::StartPlay()
 {
 	Super::StartPlay();
-	auto CachedPlayer = Cast<APlayerPawn>(DefaultPawnClass);
-	if (IsValid(CachedPlayer))
-	{
-		CachedPlayer->OnDeath.AddUObject(this, &ASkateTrafficGameMode::GameOver);
-	}
+	//auto CachedPlayer = Cast<APlayerPawn>(DefaultPawnClass);
+	//if (IsValid(CachedPlayer))
+	//{
+	//	CachedPlayer->OnDeath.AddUObject(this, &ASkateTrafficGameMode::GameOver);
+	//}
 	OnGameStateChanged.AddUObject(this, &ASkateTrafficGameMode::OnGameStateChangedEvent);
 	
 	CurrentLevelMusicActor = GetWorld()->SpawnActor<ASTMusicActor>(LevelMusic, FTransform::Identity);
@@ -48,6 +50,10 @@ bool ASkateTrafficGameMode::ClearPause()
 	}
 	
 	return PauseCleared;
+}
+
+void ASkateTrafficGameMode::OnGameModeInitialized_Implementation(AGameModeBase* GameMode)
+{
 }
 
 void ASkateTrafficGameMode::GameOver()

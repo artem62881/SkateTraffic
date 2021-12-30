@@ -29,9 +29,10 @@ private:
 	void SlowDownStop();
 	void SwitchLaneRight();
 	void SwitchLaneLeft();
+	void Jump();
 	void OnPauseGame();
 
-	TSoftObjectPtr<class ASkaterPawn> CachedBasePawn;
+	TSoftObjectPtr<class APlayerPawn> CachedBasePawn;
 
 	void OnGameStateChanged(ESTGameState State);
 

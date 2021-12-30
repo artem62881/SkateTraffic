@@ -73,6 +73,7 @@ void ASkaterPawn::PushForwardEnd()
 
 void ASkaterPawn::SlowDownStart()
 {
+	if (GetSkaterPawnMovementComponent()->IsFalling()) return;
 	bIsSlowingDown = true;
 }
 
@@ -110,4 +111,9 @@ USkaterPawnMovementComponent* ASkaterPawn::GetSkaterPawnMovementComponent() cons
 UCapsuleComponent* ASkaterPawn::GetCapsuleComponent() const
 {
 	return CapsuleComponent;
+}
+
+USkeletalMeshComponent* ASkaterPawn::GetCharacterMesh() const
+{
+	return CharacterMeshComponent;
 }

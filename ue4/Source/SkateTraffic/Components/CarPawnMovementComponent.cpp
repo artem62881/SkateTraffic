@@ -4,12 +4,13 @@
 #include "CarPawnMovementComponent.h"
 #include "../Pawns/CarPawn.h"
 
+DEFINE_LOG_CATEGORY_STATIC(LogSTCarMovement, All, All)
+
 void UCarPawnMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	PawnOwner = StaticCast<ACarPawn*>(GetOwner());
-	//PawnOwner->SetActorRelativeLocation(PawnOwner->GetActorRightVector() * GetLaneXLocationPerNum(InitialLane));
-	//SetInitialValues();
+	SetCarSpeedValues(InitialSpeedValues);
 }
 
 void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -17,26 +18,24 @@ void UCarPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick T
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
 
-void UCarPawnMovementComponent::SetInitialValues()
+void UCarPawnMovementComponent::SetCarSpeedValues(FCarSpeedValues SpeedValues)
 {
-	float BaseTargetSpeed = FMath::RandRange(MinBaseTargetSpeed, MaxBaseTargetSpeed);
-	BaseAccel = FMath::RandRange(MinBaseAccel, MaxBaseAccel);
-	BaseBrakeAccel = FMath::RandRange(MinBaseBrakeAccel, MaxBaseBrakeAccel);
+	float BaseTargetSpeed = FMath::RandRange(SpeedValues.MinTargetSpeed, SpeedValues.MaxTargetSpeed);
+	BaseAccel = FMath::RandRange(SpeedValues.MinAccel, SpeedValues.MaxAccel);
+	//BaseBrakeAccel = FMath::RandRange(CarOptions.MinBrakeAccel, CarOptions.MaxBrakeAccel);
 
 	SetCurrentTargetSpeed(BaseTargetSpeed);
-	/*UE_LOG(LogTemp, Warning, TEXT("%s | Speed: %f"), *GetOwner()->GetName(), CurrentTargetSpeed);
-	UE_LOG(LogTemp, Warning, TEXT("%s | Accel: %f"), *GetOwner()->GetName(), BaseAccel);
-	UE_LOG(LogTemp, Warning, TEXT("%s | BrakeAccel: %f"), *GetOwner()->GetName(), BaseBrakeAccel);
-	UE_LOG(LogTemp, Warning, TEXT("------------------------------------------------"));*/
 }
 
 float UCarPawnMovementComponent::GetCurrentTargetSpeed() const
 {
+	//UE_LOG(LogCarMovement, Display, TEXT("%s | Accel: %f"), *GetOwner()->GetName(), BaseAccel);
 	return CurrentTargetSpeed;
 }
 
 void UCarPawnMovementComponent::SetCurrentTargetSpeed(float NewTargetSpeed)
 {
+	//UE_LOG(LogSTCarMovement, Display, TEXT("%s | TargetSpeed: %f"), *GetOwner()->GetName(), NewTargetSpeed);
 	CurrentTargetSpeed = NewTargetSpeed;
 }
 
@@ -54,6 +53,6 @@ void UCarPawnMovementComponent::DecreaseSpeed(float DeltaTime)
 {
 	if (FVector::DotProduct(PawnOwner->GetActorForwardVector(), Velocity) > 0.f)
 	{
-		AddVelocity(-PawnOwner->GetActorForwardVector() * BaseBrakeAccel * DeltaTime);
+		AddVelocity(-PawnOwner->GetActorForwardVector() * BaseAccel * DeltaTime);
 	}
 }

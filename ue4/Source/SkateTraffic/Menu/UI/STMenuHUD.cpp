@@ -10,7 +10,7 @@ void ASTMenuHUD::BeginPlay()
 
 	if (MenuWidgetClass)
 	{
-		const auto MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);
+		MenuWidget = CreateWidget<UUserWidget>(GetWorld(), MenuWidgetClass);
 		if (MenuWidget)
 		{
 			MenuWidget->AddToViewport();

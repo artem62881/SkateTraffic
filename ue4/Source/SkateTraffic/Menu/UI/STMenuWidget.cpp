@@ -16,6 +16,12 @@ void USTMenuWidget::NativeOnInitialized()
 	{
 		StartGameButton->OnClicked.AddDynamic(this, &USTMenuWidget::OnStartGame);
 	}
+
+	if (SwitchCharacterButton)
+	{
+		SwitchCharacterButton->OnClicked.AddDynamic(this, &USTMenuWidget::OnSwitchCharacter);
+	}
+		
 }
 
 void USTMenuWidget::OnStartGame()
@@ -32,4 +38,14 @@ void USTMenuWidget::OnStartGame()
 	}
 	
 	UGameplayStatics::OpenLevel(this, STGameInstance->GetStartupLevelName());
+}
+
+void USTMenuWidget::OnSwitchCharacter()
+{
+	if (!GetWorld()) return;
+
+	const auto STGameInstance = Cast<USTGameInstance>(GetWorld()->GetGameInstance());
+	if (!STGameInstance) return;
+
+	STGameInstance->SwitchPlayerCharacter();
 }

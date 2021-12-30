@@ -12,6 +12,8 @@
  */
  DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnGroundHit, FVector&, HitNormal);
 
+class ASTBasePawn;
+
 UCLASS()
 class SKATETRAFFIC_API USTBasePawnMovementComponent : public UPawnMovementComponent
 {
@@ -36,6 +38,8 @@ public:
 	TArray<float> GetLanesLocationsArray() const;
 	float GetLaneXLocationPerNum(int8 Num) const;
 	int8 GetCurrentLaneNum() const;
+	
+	UFUNCTION(BlueprintCallable)
 	void SetCurrentLaneNum(int32 NewNum);
 	
 	bool IsSwitchingLanes() const;
@@ -45,6 +49,9 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gravity");
 	bool bEnableGravity = true;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gravity");
+	float GravityRatio = 1.3f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Gravity");
 	float FloorCheckTraceLength = 120.f;
@@ -60,9 +67,15 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly);
 	float MaxVelocity = 3000.f;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float InitialVelocity = 0.f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	TArray<float> LanesXLocations = { -450.f, 0.f, 450.f };
+	
+	UPROPERTY(EditInstanceOnly, BlueprintReadOnly, meta = (UIMin = 0, ClampMin = 0, UIMax = 2, ClampMax = 2))
+	uint8 InitialLaneNum = 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	float MinSwitchLaneSpeed = 400.0f;
@@ -73,9 +86,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (UIMin = 0.f, ClampMin = 0.f, UIMax = 1.f, ClampMax = 1.f))
 	float SwitchLaneVelocityRatio = 0.4f;
 
-	virtual void SetPawnInitialVelocity(FVector InVelocity);
+	//void SetPawnInitialVelocity(FVector InVelocity);
 
 private:
+	TWeakObjectPtr<ASTBasePawn> CachedPawnOwner;
+	
 	void SetPawnVelocity(FVector NewVelocity);
 	
 	void UpdatePawnAcceleration(float DeltaTime, FVector FloorNormal);
@@ -101,6 +116,7 @@ private:
 	void SwitchLaneUpdate(float DeltaTime);
 	void SwitchLaneEnd();
 
+	UPROPERTY(VisibleAnywhere)
 	int8 CurrentLaneNum = 1;
 
 	bool bIsSwitchingLanes = false;

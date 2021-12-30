@@ -15,8 +15,7 @@ void USkaterPawnMovementComponent::BeginPlay()
 		PushForwardVelocityTimeline.AddInterpFloat(PushForwardVelocityCurve, PushForwardVelocityUpdate);
 	}
 	PawnOwner = StaticCast<ASkaterPawn*>(GetOwner());
-	SetPawnInitialVelocity(InitialVelocity * GetPawnOwner()->GetActorForwardVector());
-	SetCurrentLaneNum(1);
+	//SetCurrentLaneNum(1);
 }
 
 void USkaterPawnMovementComponent::TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -60,6 +59,20 @@ void USkaterPawnMovementComponent::SwitchLaneStart(int32 Direction)
 		PawnOwner->PushForwardEnd();
 	}
 	Super::SwitchLaneStart(Direction);
+}
+
+void USkaterPawnMovementComponent::Jump(EJumpType JumpType)
+{
+	FVector JumpVector = PawnOwner->GetActorUpVector();
+	if (JumpType == EJumpType::Succesful)
+	{
+		AddVelocity(JumpVector * SuccesfulJumpVelocity);
+	}
+	else
+	{
+		AddVelocity(JumpVector * FailedJumpVelocity);
+	}
+	UE_LOG(LogTemp, Error, TEXT("Jump | %s"), JumpType == EJumpType::Succesful ? TEXT("High") : TEXT("Low"));
 }
 
 void USkaterPawnMovementComponent::PushForwardVelocityUpdate(float Alpha)

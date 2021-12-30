@@ -9,6 +9,30 @@
 /**
  * 
  */
+USTRUCT(BlueprintType)
+struct FCarSpeedValues 
+{
+	GENERATED_BODY();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinTargetSpeed = 700.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxTargetSpeed = 1300.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MinAccel = 400.f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MaxAccel = 700.f;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//float MinBrakeAccel = 400.f;
+
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	//float MaxBrakeAccel = 700.f;
+};
+
 UCLASS()
 class SKATETRAFFIC_API UCarPawnMovementComponent : public USTBasePawnMovementComponent
 {
@@ -18,32 +42,19 @@ public:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void SetInitialValues();
+	UFUNCTION(BlueprintCallable)
+	void SetCarSpeedValues(FCarSpeedValues SpeedValues);
+	
 	float GetCurrentTargetSpeed() const;
+	
 	void SetCurrentTargetSpeed(float NewTargetSpeed);
-	float GetBaseTargetSpeed() const;
 	
 	void IncreaseSpeed(float DeltaTime);
 	void DecreaseSpeed(float DeltaTime);
 	
 protected:
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Initial values | Speed")
-	float MinBaseTargetSpeed = 700.f;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category= "Initial values | Speed")
-	float MaxBaseTargetSpeed = 1300.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Accel")
-	float MinBaseAccel = 400.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Accel")
-	float MaxBaseAccel = 700.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Brake")
-	float MinBaseBrakeAccel = 400.f;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category= "Initial values | Brake")
-	float MaxBaseBrakeAccel = 700.f;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FCarSpeedValues InitialSpeedValues;
 	
 private:
 	class ACarPawn* PawnOwner = nullptr;
@@ -51,8 +62,11 @@ private:
 	//float BaseTargetSpeed = 0.f;
 	UPROPERTY(VisibleAnywhere)
 	float CurrentTargetSpeed = 0.f;
-	
+
+	UPROPERTY(VisibleAnywhere)
 	float BaseAccel = 0.f;
-	float BaseBrakeAccel = 0.f;
+
+	//UPROPERTY(VisibleAnywhere)
+	//float BaseBrakeAccel = 0.f;
 	uint32 InitialLane = 1;
 };
